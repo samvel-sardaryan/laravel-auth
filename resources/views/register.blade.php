@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title','Register')
+@section('title', 'Register')
 @section('content')
 <form action="{{ route('register') }}" method="post" novalidate>
     @csrf
