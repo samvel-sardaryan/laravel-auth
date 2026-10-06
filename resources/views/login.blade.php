@@ -6,16 +6,12 @@
     <div>
         <label for="email">Email</label>
         <input type="email" id="email" name="email" value="{{ old('email') }}" required>
-        @error('email')
-        <span class="error">{{ $message }}</span>
-        @enderror
+        @include('partials.field-error', ['field' => 'email'])
     </div>
     <div>
         <label for="password">Password</label>
         <input type="password" id="password" name="password" required>
-        @error('password')
-        <span class="error">{{ $message }}</span>
-        @enderror
+        @include('partials.field-error', ['field' => 'password'])
     </div>
     <button type="submit">Login</button>
 </form>
