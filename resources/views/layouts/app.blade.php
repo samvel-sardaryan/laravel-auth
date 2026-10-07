@@ -13,7 +13,7 @@
         @include('partials.nav')
     </header>
     <main class="container">
-        @include('partials.flash')
+        <x-flash />
         @yield('content')
     </main>
     <footer class="site-footer">
