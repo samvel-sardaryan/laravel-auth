@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
@@ -38,8 +39,15 @@ class UserFactory extends Factory
      */
     public function unverified(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn(array $attributes) => [
             'email_verified_at' => null,
         ]);
+    }
+
+    public function withRole(string $role): static
+    {
+        return $this->afterCreating(fn(User $user) => $user->roles()->sync([
+            Role::where('name', $role)->value('id')
+        ]));
     }
 }
