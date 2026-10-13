@@ -21,12 +21,16 @@ class AdminAccessTest extends TestCase
         ]);
     }
 
-    /**
-     * A basic feature test example.
-     */
     public function test_regular_user_gets_403_on_admin(): void
     {
         $user = User::factory()->create();
         $this->actingAs($user)->get(route('admin.index'))->assertForbidden();
+    }
+
+    public function test_admin_can_view_users_list(): void
+    {
+        $admin = User::factory()->withRole('admin')->create();
+        $other = User::factory()->create();
+        $this->actingAs($admin)->get(route('admin.users.index'))->assertOk()->assertSee($other->email);
     }
 }

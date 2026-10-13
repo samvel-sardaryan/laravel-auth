@@ -7,6 +7,7 @@ return [
     'verification' => [
         'expire' => (int) env('AUTH_VERIFICATION_EXPIRE', 60),
     ],
+
     /*
     |--------------------------------------------------------------------------
     | Authentication Defaults
@@ -99,7 +100,7 @@ return [
         'users' => [
             'provider' => 'users',
             'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_reset_tokens'),
-            'expire' => 60,
+            'expire' => (int) env('AUTH_PASSWORD_RESET_EXPIRE', 60),
             'throttle' => 60,
         ],
     ],
