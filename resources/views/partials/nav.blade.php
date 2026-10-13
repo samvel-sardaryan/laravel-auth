@@ -13,6 +13,16 @@
         <li>
             <a href="{{ route('dashboard') }}">Dashboard</a>
         </li>
+        @can('access_moderator_page')
+        <li>
+            <a href="{{ route('moderator') }}">Moderator</a>
+        </li>
+        @endcan
+        @can('access_admin_page')
+        <li>
+            <a href="{{ route('admin.index') }}">Admin</a>
+        </li>
+        @endcan
         <li>
             <form action="{{ route('logout') }}" method="post">
                 @csrf

@@ -4,6 +4,9 @@ use App\Models\User;
 
 return [
 
+    'verification' => [
+        'expire' => (int) env('AUTH_VERIFICATION_EXPIRE', 60),
+    ],
     /*
     |--------------------------------------------------------------------------
     | Authentication Defaults
@@ -113,5 +116,4 @@ return [
     */
 
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
-
 ];

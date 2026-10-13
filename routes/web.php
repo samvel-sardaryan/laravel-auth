@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 
@@ -14,7 +15,18 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [LoginController::class, 'store']);
 });
 
+Route::get('/email/verify/{id}/{hash}', [VerifyEmailController::class, 'verify'])->middleware(['throttle:6,1', 'signed'])->name('verification.verify');
+
 Route::middleware('auth')->group(function () {
-    Route::get('/dashboard', DashboardController::class)->name('dashboard');
     Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');
+    Route::get('/email/verify', [VerifyEmailController::class, 'notice'])->name('verification.notice');
+    Route::post('/email/resend', [VerifyEmailController::class, 'resend'])->middleware(['throttle:1,1'])->name('verification.send');
+});
+
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/dashboard', DashboardController::class)->middleware(['permission:view_dashboard'])->name('dashboard');
+    Route::view('/moderator', 'moderator')->middleware(['permission:access_moderator_page'])->name('moderator');
+    Route::prefix('admin')->name('admin.')->group(function () {
+        Route::view('/', 'admin.index')->middleware(['permission:access_admin_page'])->name('index');
+    });
 });
