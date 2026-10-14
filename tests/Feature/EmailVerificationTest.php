@@ -55,7 +55,7 @@ class EmailVerificationTest extends TestCase
 
         $other = User::factory()->unverified()->create();
         $url = URL::temporarySignedRoute('verification.verify', now()->addMinutes(60), ['id' => $user->id, 'hash' => sha1($user->email)]);
-        $url = str_replace("/verify/{$user->id}/" . sha1($user->email), "/verify/{$other->id}/" . sha1($other->email), $url);
+        $url = str_replace("/verify/{$user->id}/".sha1($user->email), "/verify/{$other->id}/".sha1($other->email), $url);
         $this->get($url)->assertForbidden();
         $this->assertFalse($other->fresh()->hasVerifiedEmail());
     }

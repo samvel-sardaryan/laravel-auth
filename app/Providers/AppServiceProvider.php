@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\User;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
@@ -22,7 +23,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Password::defaults(fn() => Password::min(8)->letters()->mixedCase()->numbers());
-        Gate::before(fn(User $user, $ability) => $user->hasPermission($ability) ?: null);
+        Password::defaults(fn () => Password::min(8)->letters()->mixedCase()->numbers());
+        Gate::before(fn (User $user, $ability) => $user->hasPermission($ability) ?: null);
+        Relation::enforceMorphMap(['user' => User::class]);
     }
 }

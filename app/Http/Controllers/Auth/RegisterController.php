@@ -21,6 +21,7 @@ class RegisterController extends Controller
         $validated = $request->validated();
         $user = User::create($validated);
         event(new Registered($user));
+
         return redirect()->route('login')->with('status', 'User registered successfully, check your email');
     }
 }

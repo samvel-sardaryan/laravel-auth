@@ -16,6 +16,7 @@ class RoleMiddleware
     public function handle(Request $request, Closure $next, string ...$roles): Response
     {
         abort_unless($request->user()?->hasAnyRole($roles), Response::HTTP_FORBIDDEN);
+
         return $next($request);
     }
 }

@@ -20,6 +20,8 @@
     <a href="{{ route('admin.users.index') }}">Reset</a>
 </form>
 
+<x-field-error field="role_id" />
+
 @if ($users->isNotEmpty())
     <p class="count">Showing {{ $users->firstItem() }}–{{ $users->lastItem() }} of {{ $users->total() }}</p>
 @endif
@@ -45,7 +47,20 @@
                 <td>{{ $user->roles->pluck('label')->join(', ') }}</td>
                 <td>{{ $user->hasVerifiedEmail() ? 'Yes' : 'No' }}</td>
                 <td>{{ $user->created_at->format('Y-m-d') }}</td>
-                <td>{{-- Step 15: the role form --}}</td>
+                <td>
+                    @can('updateRole', $user)
+                        <form method="post" action="{{ route('admin.users.role.update', $user) }}">
+                            @csrf
+                            @method('PATCH')
+                            <select name="role_id">
+                                @foreach ($roles as $role)
+                                    <option value="{{ $role->id }}" @selected($user->roles->contains($role))>{{ $role->label }}</option>
+                                @endforeach
+                            </select>
+                            <button type="submit">Change</button>
+                        </form>
+                    @endcan
+                </td>
             </tr>
         @empty
             <tr>

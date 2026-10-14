@@ -18,14 +18,7 @@ class LoginController extends Controller
 
     public function store(LoginRequest $request): RedirectResponse
     {
-        $credentials = $request->validated();
-
-        if (! Auth::attempt($credentials)) {
-            return back()->withErrors([
-                'email' => 'Invalid email or password',
-            ])->onlyInput('email');
-        }
-
+        $request->authenticate();
         $request->session()->regenerate();
         $user = $request->user();
         $user->last_login_at = now();

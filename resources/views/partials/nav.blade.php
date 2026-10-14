@@ -13,6 +13,9 @@
         <li>
             <a href="{{ route('dashboard') }}">Dashboard</a>
         </li>
+        <li>
+            <a href="{{ route('profile.edit') }}">Profile</a>
+        </li>
         @can('access_moderator_page')
         <li>
             <a href="{{ route('moderator') }}">Moderator</a>

@@ -2,14 +2,14 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
 use App\Models\User;
-use Illuminate\Support\Facades\Notification;
 use App\Notifications\ResetPasswordNotification;
-use Illuminate\Support\Facades\Password;
-use Illuminate\Support\Facades\Hash;
 use Database\Seeders\RoleSeeder;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Password;
+use Tests\TestCase;
 
 class PasswordResetTest extends TestCase
 {

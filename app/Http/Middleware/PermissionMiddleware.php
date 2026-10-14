@@ -16,6 +16,7 @@ class PermissionMiddleware
     public function handle(Request $request, Closure $next, string $permission): Response
     {
         abort_unless($request->user()?->hasPermission($permission), Response::HTTP_FORBIDDEN);
+
         return $next($request);
     }
 }
