@@ -1,6 +1,9 @@
 <nav>
     <a href="/">{{ config('app.name') }}</a>
     <ul>
+        <li>
+            <a href="{{ route('posts.index') }}">Posts</a>
+        </li>
         @guest
         <li>
             <a href="{{ route('login') }}">Login</a>
@@ -13,6 +16,11 @@
         <li>
             <a href="{{ route('dashboard') }}">Dashboard</a>
         </li>
+        @can('create_post')
+        <li>
+            <a href="{{ route('posts.create') }}">New post</a>
+        </li>
+        @endcan
         <li>
             <a href="{{ route('profile.edit') }}">Profile</a>
         </li>

@@ -32,5 +32,13 @@
     <p class="hint">This user has not filled in their profile yet.</p>
 @endforelse
 
-<a href="{{ url('/') }}">Home</a>
+<h2>Posts</h2>
+@forelse ($posts as $post)
+    <x-post-card :post="$post" />
+@empty
+    <p class="hint">This user has not posted yet.</p>
+@endforelse
+{{ $posts->links('partials.pagination') }}
+
+<a href="{{ route('posts.index') }}">Back to posts</a>
 @endsection

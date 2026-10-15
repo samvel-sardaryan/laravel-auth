@@ -100,6 +100,23 @@
     <button type="submit">Save</button>
 </form>
 
+@isset($posts)
+    <h2>My posts</h2>
+    @can('create_post')
+        <p><a href="{{ route('posts.create') }}">New post</a></p>
+    @endcan
+    @forelse ($posts as $post)
+        <p>
+            <a href="{{ route('posts.show', $post) }}">{{ $post->title }}</a>
+            <span class="status-badge">{{ $post->status->value }}</span>
+            <a href="{{ route('posts.edit', $post) }}">Edit</a>
+        </p>
+    @empty
+        <p class="hint">You have not posted yet.</p>
+    @endforelse
+    {{ $posts->links('partials.pagination') }}
+@endisset
+
 <p><a href="{{ route('users.show', $user) }}">See your public profile</a></p>
 <a href="{{ route('dashboard') }}">Back to dashboard</a>
 @endsection

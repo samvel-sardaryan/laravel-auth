@@ -14,6 +14,7 @@ class UserProfileController extends Controller
     {
         return view('users.show', [
             'user' => $user->load('profile'),
+            'posts' => $user->posts()->published()->withCardData(request()->user())->latest()->paginate(10),
         ]);
     }
 }

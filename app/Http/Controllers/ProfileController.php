@@ -21,6 +21,7 @@ class ProfileController extends Controller
         return view('profile.edit', [
             'user' => $user,
             'profile' => $user->profile ?? new Profile,
+            'posts' => $user->posts()->latest()->paginate(10),
         ]);
     }
 

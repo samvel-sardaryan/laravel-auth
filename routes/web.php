@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
@@ -7,11 +8,12 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserProfileController;
 use Illuminate\Support\Facades\Route;
 
-Route::redirect('/', '/dashboard');
+Route::redirect('/', '/posts');
 
 Route::middleware('guest')->group(function () {
     Route::get('/register', [RegisterController::class, 'create'])->name('register');
@@ -47,5 +49,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::view('/', 'admin.index')->middleware(['permission:access_admin_page'])->name('index');
         Route::get('/users', [UserController::class, 'index'])->middleware(['permission:view_users'])->name('users.index');
         Route::patch('/users/{user}/role', [UserController::class, 'updateRole'])->middleware(['permission:manage_users'])->name('users.role.update');
+        Route::resource('categories', CategoryController::class)->middleware(['permission:access_admin_page'])->only(['index', 'store', 'update', 'destroy']);
     });
+    Route::get('/posts/create', [PostController::class, 'create'])->middleware(['permission:create_post'])->name('posts.create');
+    Route::post('/posts', [PostController::class, 'store'])->middleware(['permission:create_post', 'throttle:posts'])->name('posts.store');
+    Route::get('/posts/{post}/edit', [PostController::class, 'edit'])->middleware(['can:update,post'])->name('posts.edit');
+    Route::put('/posts/{post}', [PostController::class, 'update'])->middleware(['can:update,post'])->name('posts.update');
+    Route::delete('/posts/{post}', [PostController::class, 'destroy'])->middleware(['can:delete,post'])->name('posts.destroy');
 });
+
+Route::get('/posts', [PostController::class, 'index'])->name('posts.index');
+Route::get('/posts/{post}', [PostController::class, 'show'])->whereNumber('post')->name('posts.show');
