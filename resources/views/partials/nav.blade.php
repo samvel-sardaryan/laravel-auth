@@ -1,5 +1,5 @@
 <nav>
-    <a href="/">{{ config('app.name') }}</a>
+    <a href="{{ route('posts.index') }}">{{ config('app.name') }}</a>
     <ul>
         <li>
             <a href="{{ route('posts.index') }}">Posts</a>
