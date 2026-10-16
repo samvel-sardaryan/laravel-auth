@@ -28,15 +28,18 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Password::defaults(fn () => Password::min(8)->letters()->mixedCase()->numbers());
-        Gate::before(fn (User $user, $ability) => $user->hasPermission($ability) ?: null);
+        Password::defaults(fn() => Password::min(8)->letters()->mixedCase()->numbers());
+        Gate::before(fn(User $user, $ability) => $user->hasPermission($ability) ?: null);
         Relation::enforceMorphMap([
             'user' => User::class,
             'post' => Post::class,
             'comment' => Comment::class,
         ]);
         RateLimiter::for('posts', function (Request $request) {
-            return Limit::perDay(10)->by($request->user()->id)->response(fn () => back()->withInput()->withErrors(['title' => 'You can create at most 10 posts a day.']));
+            return Limit::perDay(10)->by($request->user()->id)->response(fn() => back()->withInput()->withErrors(['title' => 'You can create at most 10 posts a day.']));
+        });
+        RateLimiter::for('comments', function (Request $request) {
+            return Limit::perMinute(5)->by($request->user()->id)->response(fn() => back()->withInput()->withErrors(['content' => 'You can post at most 5 comments a minute.']));
         });
     }
 }

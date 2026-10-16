@@ -29,7 +29,20 @@
         {{ $post->likers_count }} {{ Str::plural('like', $post->likers_count) }}
         &middot;
         <a href="{{ route('posts.show', $post) }}#comments">{{ $post->comments_count }} {{ Str::plural('comment', $post->comments_count) }}</a>
+        @if (auth()->user()?->hasVerifiedEmail() && $post->status === \App\Enums\PostStatus::Published)
+            <form method="post" action="{{ route('posts.like', $post) }}">
+                @csrf
+                <button type="submit">{{ $post->liked ? 'Unlike' : 'Like' }}</button>
+            </form>
+        @endif
     </p>
+    @if (auth()->user()?->hasVerifiedEmail() && auth()->id() !== $post->user_id)
+        <form method="post" action="{{ route('reports.post', $post) }}" class="report">
+            @csrf
+            <input type="text" name="reason" maxlength="255" required placeholder="Report this post: why?" aria-label="Report reason">
+            <button type="submit">Report</button>
+        </form>
+    @endif
     @canany(['update', 'delete'], $post)
         <p class="actions">
             @can('update', $post)

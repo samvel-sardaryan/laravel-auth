@@ -28,6 +28,8 @@
     <a href="{{ route('posts.index') }}">Clear</a>
 </form>
 
+<x-field-error field="reason" />
+
 @forelse ($posts as $post)
     <x-post-card :post="$post" />
 @empty

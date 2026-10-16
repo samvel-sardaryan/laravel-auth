@@ -8,6 +8,7 @@ use App\Http\Requests\PostRequest;
 use App\Models\Activity;
 use App\Models\Category;
 use App\Models\Post;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -59,9 +60,11 @@ class PostController extends Controller
     {
         Gate::authorize('view', $post);
         $post->load(['user', 'category', 'tags', 'images'])->loadCount(['likers', 'comments']);
-        $post->loadExists(['likers as liked' => fn ($q) => $q->where('post_likes.user_id', $request->user()?->id)]);
+        $post->loadExists(['likers as liked' => fn($q) => $q->where('post_likes.user_id', $request->user()?->id)]);
+        $comments = $post->comments()->whereNull('parent_id')->withTrashed()->where(fn(Builder $q) => $q->whereNull('deleted_at')->orWhereHas('replies'))
+            ->with(['user', 'replies' => fn($q) => $q->with('user')->oldest()])->oldest()->get();
 
-        return view('posts.show', ['post' => $post]);
+        return view('posts.show', ['post' => $post, 'comments' => $comments]);
     }
 
     /**
