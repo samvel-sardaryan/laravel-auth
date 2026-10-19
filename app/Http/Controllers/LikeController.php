@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Post;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 
 class LikeController extends Controller
 {
@@ -20,6 +20,7 @@ class LikeController extends Controller
         if ($inserted === 0) {
             $post->likers()->detach($request->user()->id);
         }
+
         return back();
     }
 }

@@ -2,14 +2,14 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
-use App\Models\Post;
 use App\Models\Comment;
+use App\Models\Post;
 use App\Models\User;
 use Database\Seeders\CategorySeeder;
 use Database\Seeders\PermissionSeeder;
 use Database\Seeders\RoleSeeder;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class ModerationTest extends TestCase
 {

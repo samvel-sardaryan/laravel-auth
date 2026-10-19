@@ -43,13 +43,13 @@ class DemoSeeder extends Seeder
             'C:\Windows\Fonts\segoeuib.ttf',
             'C:\Windows\Fonts\arialbd.ttf',
             '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf',
-        ])->first(fn(string $path) => is_file($path));
+        ])->first(fn (string $path) => is_file($path));
         $this->removeOldDemoFiles();
 
         $admin = User::where('email', config('roles.admin.email'))->firstOrFail();
         $users = User::with('roles')->orderBy('id')->get();
         $verified = $users->whereNotNull('email_verified_at')->values();
-        $moderators = $users->filter(fn(User $user) => $user->hasRole('moderator'))->values();
+        $moderators = $users->filter(fn (User $user) => $user->hasRole('moderator'))->values();
 
         $this->spreadUserDates($users, $admin);
         $this->spreadFactoryContentDates();
@@ -70,7 +70,7 @@ class DemoSeeder extends Seeder
     {
         $disk = Storage::disk('public');
         foreach (['posts', 'avatars'] as $directory) {
-            $old = array_filter($disk->files($directory), fn(string $path) => str_starts_with(basename($path), 'demo-'));
+            $old = array_filter($disk->files($directory), fn (string $path) => str_starts_with(basename($path), 'demo-'));
             $disk->delete($old);
         }
     }
@@ -135,7 +135,7 @@ class DemoSeeder extends Seeder
         ];
         $palettes = $this->palettes();
 
-        $people = $verified->reject(fn(User $user) => $user->is($admin))->shuffle()->take(22)->push($admin);
+        $people = $verified->reject(fn (User $user) => $user->is($admin))->shuffle()->take(22)->push($admin);
         foreach ($people->values() as $index => $user) {
             [$first, $last] = $this->splitName($user->name);
             $full = $index % 4 !== 3;
@@ -144,7 +144,7 @@ class DemoSeeder extends Seeder
                 'last_name' => $last,
                 'location' => $locations[array_rand($locations)],
                 'bio' => $bios[$index % count($bios)],
-                'phone' => $full ? '+374 ' . rand(10, 99) . ' ' . rand(100, 999) . ' ' . rand(100, 999) : null,
+                'phone' => $full ? '+374 '.rand(10, 99).' '.rand(100, 999).' '.rand(100, 999) : null,
                 'date_of_birth' => $full ? $this->now->copy()->subYears(rand(19, 45))->subDays(rand(0, 364))->toDateString() : null,
             ];
             if ($index % 5 === 4) {
@@ -152,7 +152,7 @@ class DemoSeeder extends Seeder
             }
             if ($index < 14 || $user->is($admin)) {
                 [$from, $to] = $palettes[$index % count($palettes)];
-                $initials = mb_strtoupper(mb_substr($first, 0, 1) . mb_substr($last, 0, 1));
+                $initials = mb_strtoupper(mb_substr($first, 0, 1).mb_substr($last, 0, 1));
                 $details['avatar'] = $this->makeImage('avatars', 256, 256, $from, $to, $initials, 72);
             }
             $user->profile()->updateOrCreate([], $details);
@@ -178,7 +178,7 @@ class DemoSeeder extends Seeder
      */
     private function addPosts(Collection $verified, User $admin): array
     {
-        $authors = $verified->reject(fn(User $user) => $user->is($admin))->shuffle()->values();
+        $authors = $verified->reject(fn (User $user) => $user->is($admin))->shuffle()->values();
         $categories = Category::pluck('id', 'slug');
         $palettes = $this->palettes();
         $posts = [];
@@ -199,7 +199,7 @@ class DemoSeeder extends Seeder
             $post->updated_at = $created;
             $post->save();
 
-            $post->tags()->sync(collect($data['tags'] ?? [])->map(fn(string $name) => Tag::firstOrCreate(['name' => $name])->id)->all());
+            $post->tags()->sync(collect($data['tags'] ?? [])->map(fn (string $name) => Tag::firstOrCreate(['name' => $name])->id)->all());
             foreach ($data['images'] ?? [] as $i => $caption) {
                 [$from, $to] = $palettes[($index + $i) % count($palettes)];
                 $post->images()->create(['path' => $this->makeImage('posts', 800, 450, $from, $to, $caption, 38)]);
@@ -212,7 +212,7 @@ class DemoSeeder extends Seeder
                 $this->log('post.updated', $author->id, 'post', $post->id, $edited);
             }
 
-            $posts[$data['key'] ?? 'post' . $index] = $post;
+            $posts[$data['key'] ?? 'post'.$index] = $post;
         }
 
         return $posts;
@@ -267,8 +267,8 @@ class DemoSeeder extends Seeder
                 if (rand(0, 1) === 1) {
                     $previous = $top;
                     for ($r = 0, $n = rand(1, 3); $r < $n; $r++) {
-                        $mention = $previous->is($top) ? '' : '@' . $previous->user->name . ' ';
-                        $previous = $this->comment($post, $verified->random(), $mention . $replies[array_rand($replies)], $top->id, $this->after($previous->created_at, 10, 60 * 24 * 2));
+                        $mention = $previous->is($top) ? '' : '@'.$previous->user->name.' ';
+                        $previous = $this->comment($post, $verified->random(), $mention.$replies[array_rand($replies)], $top->id, $this->after($previous->created_at, 10, 60 * 24 * 2));
                     }
                 }
             }
@@ -277,7 +277,7 @@ class DemoSeeder extends Seeder
         $switch = $posts['switch'];
         $gone = $this->comment($switch, $verified->random(), 'Posting my email so you can contact me about a job.', null, $this->after($switch->created_at, 60, 600));
         $warning = $this->comment($switch, $verified->random(), 'Careful, bots read these pages. Maybe remove it?', $gone->id, $this->after($gone->created_at, 10, 120));
-        $this->comment($switch, $gone->user, '@' . $warning->user->name . ' Good call, removing it now.', $gone->id, $this->after($gone->created_at, 130, 200));
+        $this->comment($switch, $gone->user, '@'.$warning->user->name.' Good call, removing it now.', $gone->id, $this->after($gone->created_at, 130, 200));
         $deletedAt = $this->after($gone->created_at, 210, 300);
         DB::table('comments')->where('id', $gone->id)->update(['deleted_at' => $deletedAt]);
         $this->log('comment.deleted', $gone->user_id, 'comment', $gone->id, $deletedAt);
@@ -295,7 +295,7 @@ class DemoSeeder extends Seeder
             }
             $count = in_array($key, ['switch', 'eager', 'queues'], true) ? rand(12, 18) : rand(0, 9);
             $likers = $verified->shuffle()->take($count);
-            DB::table('post_likes')->insertOrIgnore($likers->map(fn(User $user) => [
+            DB::table('post_likes')->insertOrIgnore($likers->map(fn (User $user) => [
                 'user_id' => $user->id,
                 'post_id' => $post->id,
                 'created_at' => $this->after($post->created_at, 5, 60 * 24 * 7),
@@ -310,7 +310,7 @@ class DemoSeeder extends Seeder
      */
     private function addModeration(array $posts, Collection $verified, Collection $moderators, User $admin): void
     {
-        $reporters = fn(Post|Comment $target, int $count) => $verified->reject(fn(User $user) => $user->id === $target->user_id)->shuffle()->take($count);
+        $reporters = fn (Post|Comment $target, int $count) => $verified->reject(fn (User $user) => $user->id === $target->user_id)->shuffle()->take($count);
         $report = function (Post|Comment $target, array $reasons) use ($reporters): Carbon {
             $last = $target->created_at;
             foreach ($reporters($target, count($reasons))->values() as $i => $user) {
@@ -366,7 +366,7 @@ class DemoSeeder extends Seeder
      */
     private function addLoginNoise(Collection $users): void
     {
-        $ips = ['203.0.113.' . rand(2, 250), '198.51.100.' . rand(2, 250), '192.0.2.' . rand(2, 250), '45.83.12.7', '91.204.188.14', '185.28.111.40', '37.252.66.3', '5.77.31.198', '94.43.120.6', '212.42.198.77'];
+        $ips = ['203.0.113.'.rand(2, 250), '198.51.100.'.rand(2, 250), '192.0.2.'.rand(2, 250), '45.83.12.7', '91.204.188.14', '185.28.111.40', '37.252.66.3', '5.77.31.198', '94.43.120.6', '212.42.198.77'];
         for ($i = 0; $i < 470; $i++) {
             $at = $this->now->copy()->subMinutes(rand(10, 60 * 24 * 60));
             $user = rand(1, 100) <= 85 ? $users->random() : null;
@@ -385,7 +385,7 @@ class DemoSeeder extends Seeder
      */
     private function addDeletedUser(): void
     {
-        $former = User::factory()->create(['name' => 'Former Member', 'email' => 'former-member-' . Str::random(6) . '@example.com']);
+        $former = User::factory()->create(['name' => 'Former Member', 'email' => 'former-member-'.Str::random(6).'@example.com']);
         $joined = $this->now->copy()->subDays(70);
         $post = new Post(['title' => 'Hello from a soon-to-leave member', 'content' => 'Just testing the forum.', 'status' => PostStatus::Published, 'category_id' => Category::value('id')]);
         $post->user()->associate($former);
@@ -424,7 +424,7 @@ class DemoSeeder extends Seeder
             'action' => $action,
             'subject_type' => $subjectType,
             'subject_id' => $subjectId,
-            'ip_address' => $ip ?? ($userId ? '10.0.' . ($userId % 250) . '.' . (($userId * 7) % 250 + 2) : '127.0.0.1'),
+            'ip_address' => $ip ?? ($userId ? '10.0.'.($userId % 250).'.'.(($userId * 7) % 250 + 2) : '127.0.0.1'),
             'created_at' => $at,
             'updated_at' => $at,
         ];
@@ -432,7 +432,7 @@ class DemoSeeder extends Seeder
 
     private function flushActivities(): void
     {
-        usort($this->activities, fn(array $a, array $b) => $a['created_at'] <=> $b['created_at']);
+        usort($this->activities, fn (array $a, array $b) => $a['created_at'] <=> $b['created_at']);
         foreach (array_chunk($this->activities, 200) as $chunk) {
             DB::table('activities')->insert($chunk);
         }
@@ -452,7 +452,7 @@ class DemoSeeder extends Seeder
      */
     private function splitName(string $name): array
     {
-        $parts = array_values(array_filter(explode(' ', $name), fn(string $part) => ! str_ends_with($part, '.') && ! in_array($part, ['Jr', 'Sr', 'II', 'III', 'IV', 'V', 'MD', 'PhD', 'DVM', 'DDS'], true)));
+        $parts = array_values(array_filter(explode(' ', $name), fn (string $part) => ! str_ends_with($part, '.') && ! in_array($part, ['Jr', 'Sr', 'II', 'III', 'IV', 'V', 'MD', 'PhD', 'DVM', 'DDS'], true)));
 
         return [$parts[0] ?? $name, count($parts) > 1 ? $parts[count($parts) - 1] : ''];
     }
@@ -480,9 +480,9 @@ class DemoSeeder extends Seeder
             $lines = [];
             $line = '';
             foreach (explode(' ', $text) as $word) {
-                $candidate = trim($line . ' ' . $word);
+                $candidate = trim($line.' '.$word);
                 $box = imagettfbbox($size, 0, $this->font, $candidate);
-                if ($line !== '' && $box[2] - $box[0] > $width * 0.84) {
+                if ($line !== '' && $width * 0.84 < $box[2] - $box[0]) {
                     $lines[] = $line;
                     $line = $word;
                 } else {
@@ -505,7 +505,7 @@ class DemoSeeder extends Seeder
         imagepng($image);
         $png = (string) ob_get_clean();
 
-        $path = $directory . '/demo-' . Str::random(32) . '.png';
+        $path = $directory.'/demo-'.Str::random(32).'.png';
         Storage::disk('public')->put($path, $png);
 
         return $path;

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Category;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -24,8 +25,8 @@ class CategoryRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'max:50', Rule::unique('categories')->ignore($this->route('category'))],
-            'slug' => ['required', 'string', 'max:50', 'regex:/^[a-z0-9-]+$/', Rule::unique('categories')->ignore($this->route('category'))],
+            'name' => ['required', 'string', 'max:'.Category::NAME_MAX_LENGTH, Rule::unique('categories')->ignore($this->route('category'))],
+            'slug' => ['required', 'string', 'max:'.Category::NAME_MAX_LENGTH, 'regex:/^[a-z0-9-]+$/', Rule::unique('categories')->ignore($this->route('category'))],
         ];
     }
 }

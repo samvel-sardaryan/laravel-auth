@@ -45,15 +45,15 @@
 <h2>Profile details</h2>
 <div class="field">
     @if ($profile->avatar)
-        <img src="{{ Storage::url($profile->avatar) }}" alt="Profile picture" width="120" height="120">
-        <form method="post" action="{{ route('profile.avatar.destroy') }}">
-            @csrf
-            @method('DELETE')
-            <button type="submit">Remove picture</button>
-        </form>
+    <img src="{{ Storage::url($profile->avatar) }}" alt="Profile picture" width="120" height="120">
+    <form method="post" action="{{ route('profile.avatar.destroy') }}">
+        @csrf
+        @method('DELETE')
+        <button type="submit">Remove picture</button>
+    </form>
     @else
-        <span class="avatar-placeholder">{{ mb_strtoupper(mb_substr($user->name, 0, 1)) }}</span>
-        <p class="hint">No profile picture yet.</p>
+    <span class="avatar-placeholder">{{ mb_strtoupper(mb_substr($user->name, 0, 1)) }}</span>
+    <p class="hint">No profile picture yet.</p>
     @endif
 </div>
 
@@ -73,7 +73,7 @@
     <div class="field">
         <label for="phone">Phone</label>
         <input type="tel" id="phone" name="phone" value="{{ old('phone', $profile->phone) }}">
-        <p class="hint">Digits, spaces and + ( ) - only. 7 to 15 digits.</p>
+        <p class="hint">Digits, spaces and + ( ) - only. {{ \App\Models\Profile::PHONE_MIN_DIGITS }} to {{ \App\Models\Profile::PHONE_MAX_DIGITS }} digits.</p>
         <x-field-error field="phone" />
     </div>
     <div class="field">
@@ -94,27 +94,27 @@
     <div class="field">
         <label for="avatar">Profile picture</label>
         <input type="file" id="avatar" name="avatar" accept="image/*">
-        <p class="hint">JPG, PNG or WEBP, up to 2 MB. Leave empty to keep the current one.</p>
+        <p class="hint">JPG, PNG or WEBP, up to {{ \App\Models\Profile::AVATAR_MAX_KILOBYTES / 1024 }} MB. Leave empty to keep the current one.</p>
         <x-field-error field="avatar" />
     </div>
     <button type="submit">Save</button>
 </form>
 
 @isset($posts)
-    <h2>My posts</h2>
-    @can('create_post')
-        <p><a href="{{ route('posts.create') }}">New post</a></p>
-    @endcan
-    @forelse ($posts as $post)
-        <p>
-            <a href="{{ route('posts.show', $post) }}">{{ $post->title }}</a>
-            <span class="status-badge">{{ $post->status->value }}</span>
-            <a href="{{ route('posts.edit', $post) }}">Edit</a>
-        </p>
-    @empty
-        <p class="hint">You have not posted yet.</p>
-    @endforelse
-    {{ $posts->links('partials.pagination') }}
+<h2>My posts</h2>
+@can('create_post')
+<p><a href="{{ route('posts.create') }}">New post</a></p>
+@endcan
+@forelse ($posts as $post)
+<p>
+    <a href="{{ route('posts.show', $post) }}">{{ $post->title }}</a>
+    <span class="status-badge">{{ $post->status->value }}</span>
+    <a href="{{ route('posts.edit', $post) }}">Edit</a>
+</p>
+@empty
+<p class="hint">You have not posted yet.</p>
+@endforelse
+{{ $posts->links('partials.pagination') }}
 @endisset
 
 <p><a href="{{ route('users.show', $user) }}">See your public profile</a></p>

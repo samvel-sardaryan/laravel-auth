@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\User;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -24,8 +25,8 @@ class UpdateAccountRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'max:100'],
-            'email' => ['required', 'email', 'max:255', Rule::unique('users')->ignore($this->user()->id)],
+            'name' => ['required', 'string', 'max:'.User::NAME_MAX_LENGTH],
+            'email' => ['required', 'email', 'max:'.User::EMAIL_MAX_LENGTH, Rule::unique('users')->ignore($this->user()->id)],
         ];
     }
 }

@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateAccountRequest;
 use App\Http\Requests\UpdatePasswordRequest;
 use App\Http\Requests\UpdateProfileDetailsRequest;
 use App\Models\Profile;
+use App\Support\Pagination;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -21,7 +22,7 @@ class ProfileController extends Controller
         return view('profile.edit', [
             'user' => $user,
             'profile' => $user->profile ?? new Profile,
-            'posts' => $user->posts()->latest()->paginate(10),
+            'posts' => $user->posts()->latest()->paginate(Pagination::USER_POSTS),
         ]);
     }
 

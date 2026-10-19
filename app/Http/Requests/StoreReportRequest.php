@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Report;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -23,7 +24,7 @@ class StoreReportRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'reason' => ['required', 'string', 'max:255']
+            'reason' => ['required', 'string', 'max:'.Report::REASON_MAX_LENGTH],
         ];
     }
 }

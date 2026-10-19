@@ -8,6 +8,7 @@ use Illuminate\Auth\Events\Verified;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\Response;
 
 class VerifyEmailController extends Controller
 {
@@ -20,7 +21,7 @@ class VerifyEmailController extends Controller
     {
         $user = User::findOrFail($id);
         if (! hash_equals(sha1($user->getEmailForVerification()), $hash)) {
-            abort(403, 'This link is invalid');
+            abort(Response::HTTP_FORBIDDEN, 'This link is invalid');
         } elseif ($user->hasVerifiedEmail()) {
             return redirect()->route('dashboard')->with('status', 'You are already verified');
         }

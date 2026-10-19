@@ -14,6 +14,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 #[Fillable(['content', 'parent_id'])]
 class Comment extends Model
 {
+    public const int CONTENT_MAX_LENGTH = 2000;
+
+    public const int EXCERPT_LENGTH = 60;
+
     /** @use HasFactory<CommentFactory> */
     use HasFactory;
 

@@ -22,6 +22,14 @@ use Illuminate\Notifications\Notifiable;
 #[ObservedBy(UserObserver::class)]
 class User extends Authenticatable implements MustVerifyEmail
 {
+    public const int NAME_MAX_LENGTH = 255;
+
+    public const int EMAIL_MAX_LENGTH = 255;
+
+    public const int REMEMBER_TOKEN_LENGTH = 60;
+
+    public const int PASSWORD_MIN_LENGTH = 8;
+
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 

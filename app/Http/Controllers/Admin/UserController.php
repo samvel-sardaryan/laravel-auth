@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateUserRoleRequest;
 use App\Models\Activity;
 use App\Models\Role;
 use App\Models\User;
+use App\Support\Pagination;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -26,8 +27,8 @@ class UserController extends Controller
             ->when($request->query('role'), fn ($q, $role) => $q->whereHas('roles', fn ($q) => $q->where('name', $role)))
             ->when(in_array($request->query('verified'), ['yes', 'no'], true), fn ($q) => $request->query('verified') === 'yes' ? $q->whereNotNull('email_verified_at') : $q->whereNull('email_verified_at'))
             ->orderBy('id')
-            ->paginate(15)
-            ->onEachSide(1)
+            ->paginate(Pagination::ADMIN_USERS)
+            ->onEachSide(Pagination::LINKS_ON_EACH_SIDE)
             ->withQueryString();
         $roles = Role::orderBy('id')->get();
 

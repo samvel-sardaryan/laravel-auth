@@ -10,6 +10,10 @@ use Illuminate\Support\Str;
 #[Fillable(['name'])]
 class Tag extends Model
 {
+    public const int NAME_MAX_LENGTH = 30;
+
+    public const int MAX_PER_POST = 5;
+
     public function posts(): BelongsToMany
     {
         return $this->belongsToMany(Post::class);
@@ -20,9 +24,9 @@ class Tag extends Model
         return Str::of($raw ?? '')
             ->explode(',')
             ->map(fn ($name) => mb_strtolower(trim($name)))
-            ->filter(fn ($name) => $name !== '' && mb_strlen($name) <= 30)
+            ->filter(fn ($name) => $name !== '' && mb_strlen($name) <= self::NAME_MAX_LENGTH)
             ->unique()
-            ->take(5)
+            ->take(self::MAX_PER_POST)
             ->map(fn ($name) => static::firstOrCreate(['name' => $name])->id)
             ->values()
             ->all();

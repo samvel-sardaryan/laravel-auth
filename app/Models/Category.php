@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 #[Fillable(['name', 'slug', 'is_default'])]
 class Category extends Model
 {
+    public const int NAME_MAX_LENGTH = 50;
+
     public function posts(): HasMany
     {
         return $this->hasMany(Post::class);

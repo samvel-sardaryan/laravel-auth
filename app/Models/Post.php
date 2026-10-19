@@ -18,6 +18,14 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 #[Fillable(['title', 'content', 'status', 'category_id'])]
 class Post extends Model
 {
+    public const int TITLE_MAX_LENGTH = 150;
+
+    public const int CONTENT_MAX_LENGTH = 5000;
+
+    public const int TAGS_INPUT_MAX_LENGTH = 255;
+
+    public const int MAX_IMAGES = 5;
+
     /** @use HasFactory<PostFactory> */
     use HasFactory;
 

@@ -36,7 +36,7 @@
                         @elseif ($isPost)
                             <a href="{{ route('posts.show', $target) }}">{{ $target->title }}</a>
                         @else
-                            <a href="{{ route('posts.show', $target->post_id) }}#comment-{{ $target->id }}">{{ Str::limit($target->content, 60) }}</a>
+                            <a href="{{ route('posts.show', $target->post_id) }}#comment-{{ $target->id }}">{{ Str::limit($target->content, \App\Models\Comment::EXCERPT_LENGTH) }}</a>
                         @endif
                     </td>
                     <td>{{ $report->reason }}</td>

@@ -10,6 +10,8 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 #[Fillable(['reporter_id', 'reason'])]
 class Report extends Model
 {
+    public const int REASON_MAX_LENGTH = 255;
+
     public function reporter(): BelongsTo
     {
         return $this->belongsTo(User::class, 'reporter_id');

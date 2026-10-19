@@ -25,7 +25,8 @@ class CommentController extends Controller
         $comment = new Comment(['content' => $request->validated('content'), 'parent_id' => $parentId]);
         $comment->user()->associate($request->user());
         $post->comments()->save($comment);
-        return redirect(route('posts.show', $post) . '#comment-' . $comment->id);
+
+        return redirect(route('posts.show', $post).'#comment-'.$comment->id);
     }
 
     public function edit(Comment $comment): View
@@ -36,7 +37,8 @@ class CommentController extends Controller
     public function update(UpdateCommentRequest $request, Comment $comment): RedirectResponse
     {
         $comment->update($request->validated());
-        return redirect(route('posts.show', $comment->post) . '#comment-' . $comment->id);
+
+        return redirect(route('posts.show', $comment->post).'#comment-'.$comment->id);
     }
 
     public function destroy(Request $request, Comment $comment): RedirectResponse
@@ -44,6 +46,7 @@ class CommentController extends Controller
         $byAuthor = $request->user()->id === $comment->user_id;
         $comment->delete();
         Activity::record($byAuthor ? 'comment.deleted' : 'comment.deleted_by_moderator', $comment);
+
         return back()->with('status', 'Comment deleted.');
     }
 }

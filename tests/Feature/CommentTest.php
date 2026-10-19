@@ -5,11 +5,11 @@ namespace Tests\Feature;
 use App\Models\Comment;
 use App\Models\Post;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
+use Database\Seeders\CategorySeeder;
 use Database\Seeders\PermissionSeeder;
 use Database\Seeders\RoleSeeder;
-use Database\Seeders\CategorySeeder;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class CommentTest extends TestCase
 {

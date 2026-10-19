@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Support\Pagination;
 use Illuminate\View\View;
 
 class UserProfileController extends Controller
@@ -14,7 +15,7 @@ class UserProfileController extends Controller
     {
         return view('users.show', [
             'user' => $user->load('profile'),
-            'posts' => $user->posts()->published()->withCardData(request()->user())->latest()->paginate(10),
+            'posts' => $user->posts()->published()->withCardData(request()->user())->latest()->paginate(Pagination::USER_POSTS),
         ]);
     }
 }

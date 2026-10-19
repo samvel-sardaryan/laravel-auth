@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Comment;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -23,7 +24,7 @@ class UpdateCommentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'content' => ['required', 'string', 'max:2000'],
+            'content' => ['required', 'string', 'max:'.Comment::CONTENT_MAX_LENGTH],
         ];
     }
 }

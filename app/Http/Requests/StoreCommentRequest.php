@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Comment;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -24,7 +25,7 @@ class StoreCommentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'content' => ['required', 'string', 'max:2000'],
+            'content' => ['required', 'string', 'max:'.Comment::CONTENT_MAX_LENGTH],
             'parent_id' => ['nullable', 'integer', Rule::exists('comments', 'id')->where('post_id', $this->route('post')->id)->whereNull('deleted_at')],
         ];
     }

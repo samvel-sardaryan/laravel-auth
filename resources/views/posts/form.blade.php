@@ -21,7 +21,7 @@
     <div class="field">
         <label for="tags">Tags</label>
         <input type="text" id="tags" name="tags" value="{{ old('tags', $post->tags->pluck('name')->join(', ')) }}">
-        <p class="hint">Comma separated, up to 5. Lowercased automatically.</p>
+        <p class="hint">Comma separated, up to {{ \App\Models\Tag::MAX_PER_POST }}. Lowercased automatically.</p>
         <x-field-error field="tags" />
     </div>
     <div class="field">
@@ -60,7 +60,7 @@
     <div class="field">
         <label for="images">{{ $post->exists ? 'Add images' : 'Images' }}</label>
         <input type="file" id="images" name="images[]" accept="image/*" multiple>
-        <p class="hint">JPG, PNG, GIF or WEBP, up to 2 MB each, 5 in total. If the form comes back with an error, choose the files again.</p>
+        <p class="hint">JPG, PNG, GIF or WEBP, up to {{ \App\Models\PostImage::MAX_KILOBYTES / 1024 }} MB each, {{ \App\Models\Post::MAX_IMAGES }} in total. If the form comes back with an error, choose the files again.</p>
         <x-field-error field="images" />
         <x-field-error field="images.*" />
     </div>

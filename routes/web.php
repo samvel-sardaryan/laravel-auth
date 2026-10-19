@@ -32,14 +32,14 @@ Route::middleware('guest')->group(function () {
     Route::post('/reset-password', [ResetPasswordController::class, 'store'])->name('password.update');
 });
 
-Route::get('/email/verify/{id}/{hash}', [VerifyEmailController::class, 'verify'])->middleware(['throttle:6,1', 'signed'])->name('verification.verify');
+Route::get('/email/verify/{id}/{hash}', [VerifyEmailController::class, 'verify'])->middleware(['throttle:verification-attempts', 'signed'])->name('verification.verify');
 
 Route::get('/users/{user}', UserProfileController::class)->name('users.show');
 
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');
     Route::get('/email/verify', [VerifyEmailController::class, 'notice'])->name('verification.notice');
-    Route::post('/email/resend', [VerifyEmailController::class, 'resend'])->middleware(['throttle:1,1'])->name('verification.send');
+    Route::post('/email/resend', [VerifyEmailController::class, 'resend'])->middleware(['throttle:verification-emails'])->name('verification.send');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'updateAccount'])->name('profile.update');
