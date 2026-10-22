@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Data\PostFilters;
 use App\Enums\PostStatus;
 use Database\Factories\PostFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -78,13 +79,13 @@ class Post extends Model
     }
 
     #[Scope]
-    protected function filtered(Builder $query, array $filters): void
+    protected function filtered(Builder $query, PostFilters $filters): void
     {
         $query
-            ->when($filters['q'] ?? null, fn (Builder $q, string $term) => $q->where(fn (Builder $w) => $w->where('title', 'like', "%{$term}%")->orWhere('content', 'like', "%{$term}%")))
-            ->when($filters['category'] ?? null, fn (Builder $q, string $slug) => $q->whereHas('category', fn (Builder $c) => $c->where('slug', $slug)))
-            ->when($filters['tag'] ?? null, fn (Builder $q, string $tag) => $q->whereHas('tags', fn (Builder $t) => $t->where('name', mb_strtolower($tag))))
-            ->when($filters['author'] ?? null, fn (Builder $q, string $id) => $q->where('user_id', (int) $id));
+            ->when($filters->search, fn (Builder $q, string $term) => $q->where(fn (Builder $w) => $w->where('title', 'like', "%{$term}%")->orWhere('content', 'like', "%{$term}%")))
+            ->when($filters->category, fn (Builder $q, string $slug) => $q->whereHas('category', fn (Builder $c) => $c->where('slug', $slug)))
+            ->when($filters->tag, fn (Builder $q, string $tag) => $q->whereHas('tags', fn (Builder $t) => $t->where('name', mb_strtolower($tag))))
+            ->when($filters->author, fn (Builder $q, int $id) => $q->where('user_id', $id));
     }
 
     #[Scope]

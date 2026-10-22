@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdateUserRoleRequest;
-use App\Models\Activity;
 use App\Models\Role;
 use App\Models\User;
+use App\Repositories\Contracts\ActivityRepository;
 use App\Support\Pagination;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -17,6 +17,8 @@ use Illuminate\View\View;
 
 class UserController extends Controller
 {
+    public function __construct(private readonly ActivityRepository $activities) {}
+
     public function index(Request $request): View
     {
         Gate::authorize('viewAny', User::class);
@@ -41,7 +43,7 @@ class UserController extends Controller
         $role = Role::findOrFail($request->validated('role_id'));
         DB::transaction(fn () => $user->roles()->sync($role->id));
         Log::info('Updated user role', ['changed_by' => $request->user()->id, 'target_user' => $user->id, 'old_role' => $oldRoles, 'new_role' => $role->name]);
-        Activity::record('role.changed', $user);
+        $this->activities->record('role.changed', $user);
 
         return back()->with('status', "{$user->name} role updated successfully to {$role->name}");
     }

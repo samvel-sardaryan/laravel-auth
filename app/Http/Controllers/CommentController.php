@@ -4,9 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreCommentRequest;
 use App\Http\Requests\UpdateCommentRequest;
-use App\Models\Activity;
 use App\Models\Comment;
 use App\Models\Post;
+use App\Repositories\Contracts\ActivityRepository;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -14,6 +14,8 @@ use Illuminate\View\View;
 
 class CommentController extends Controller
 {
+    public function __construct(private readonly ActivityRepository $activities) {}
+
     public function store(StoreCommentRequest $request, Post $post): RedirectResponse
     {
         Gate::authorize('view', $post);
@@ -45,7 +47,7 @@ class CommentController extends Controller
     {
         $byAuthor = $request->user()->id === $comment->user_id;
         $comment->delete();
-        Activity::record($byAuthor ? 'comment.deleted' : 'comment.deleted_by_moderator', $comment);
+        $this->activities->record($byAuthor ? 'comment.deleted' : 'comment.deleted_by_moderator', $comment);
 
         return back()->with('status', 'Comment deleted.');
     }

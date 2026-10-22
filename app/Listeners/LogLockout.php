@@ -2,16 +2,18 @@
 
 namespace App\Listeners;
 
-use App\Models\Activity;
+use App\Repositories\Contracts\ActivityRepository;
 use Illuminate\Auth\Events\Lockout;
 
 class LogLockout
 {
+    public function __construct(private readonly ActivityRepository $activities) {}
+
     /**
      * Handle the event.
      */
     public function handle(Lockout $event): void
     {
-        Activity::record('login.blocked');
+        $this->activities->record('login.blocked');
     }
 }

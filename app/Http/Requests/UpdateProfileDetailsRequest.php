@@ -25,17 +25,17 @@ class UpdateProfileDetailsRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'first_name' => ['nullable', 'string', 'max:' . Profile::NAME_MAX_LENGTH],
-            'last_name' => ['nullable', 'string', 'max:' . Profile::NAME_MAX_LENGTH],
-            'phone' => ['nullable', 'string', 'max:' . Profile::PHONE_MAX_LENGTH, 'regex:/^\+?[0-9 ()\-]+$/', function (string $attribute, mixed $value, Closure $fail) {
+            'first_name' => ['nullable', 'string', 'max:'.Profile::NAME_MAX_LENGTH],
+            'last_name' => ['nullable', 'string', 'max:'.Profile::NAME_MAX_LENGTH],
+            'phone' => ['nullable', 'string', 'max:'.Profile::PHONE_MAX_LENGTH, 'regex:/^\+?[0-9 ()\-]+$/', function (string $attribute, mixed $value, Closure $fail) {
                 if (strlen(preg_replace('/\D/', '', $value)) < Profile::PHONE_MIN_DIGITS || strlen(preg_replace('/\D/', '', $value)) > Profile::PHONE_MAX_DIGITS) {
-                    $fail('Phone must contain between ' . Profile::PHONE_MIN_DIGITS . ' and ' . Profile::PHONE_MAX_DIGITS . ' digits.');
+                    $fail('Phone must contain between '.Profile::PHONE_MIN_DIGITS.' and '.Profile::PHONE_MAX_DIGITS.' digits.');
                 }
             }],
-            'location' => ['nullable', 'string', 'max:' . Profile::LOCATION_MAX_LENGTH],
+            'location' => ['nullable', 'string', 'max:'.Profile::LOCATION_MAX_LENGTH],
             'date_of_birth' => ['nullable', 'date', 'before:today'],
-            'bio' => ['nullable', 'string', 'max:' . Profile::BIO_MAX_LENGTH],
-            'avatar' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:' . Profile::AVATAR_MAX_KILOBYTES],
+            'bio' => ['nullable', 'string', 'max:'.Profile::BIO_MAX_LENGTH],
+            'avatar' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:'.Profile::AVATAR_MAX_KILOBYTES],
         ];
     }
 }

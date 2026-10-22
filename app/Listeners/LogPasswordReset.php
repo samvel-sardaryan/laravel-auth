@@ -2,16 +2,18 @@
 
 namespace App\Listeners;
 
-use App\Models\Activity;
+use App\Repositories\Contracts\ActivityRepository;
 use Illuminate\Auth\Events\PasswordReset;
 
 class LogPasswordReset
 {
+    public function __construct(private readonly ActivityRepository $activities) {}
+
     /**
      * Handle the event.
      */
     public function handle(PasswordReset $event): void
     {
-        Activity::record('password.reset', by: $event->user);
+        $this->activities->record('password.reset', by: $event->user);
     }
 }

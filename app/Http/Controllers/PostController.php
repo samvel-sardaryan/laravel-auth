@@ -3,11 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Actions\SavePost;
+use App\Data\PostFilters;
 use App\Enums\PostStatus;
 use App\Http\Requests\PostRequest;
-use App\Models\Activity;
 use App\Models\Category;
 use App\Models\Post;
+use App\Repositories\Contracts\ActivityRepository;
 use App\Support\Pagination;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
@@ -17,15 +18,18 @@ use Illuminate\View\View;
 
 class PostController extends Controller
 {
+    public function __construct(private readonly ActivityRepository $activities) {}
+
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request): View
     {
+        $filters = PostFilters::fromRequest($request);
         $posts = Post::published()
-            ->filtered($request->only('q', 'category', 'tag', 'author'))
+            ->filtered($filters)
             ->withCardData($request->user())
-            ->sorted($request->query('sort'))
+            ->sorted($filters->sort)
             ->paginate(Pagination::FEED)
             ->onEachSide(Pagination::LINKS_ON_EACH_SIDE)
             ->withQueryString();
@@ -49,7 +53,7 @@ class PostController extends Controller
         $post = new Post;
         $post->user()->associate($request->user());
         $save->handle($post, $request->validated(), $request->file('images', []), []);
-        Activity::record('post.created', $post);
+        $this->activities->record('post.created', $post);
 
         return redirect()->route('posts.show', $post)->with('status', 'Post created.');
     }
@@ -82,7 +86,7 @@ class PostController extends Controller
     public function update(PostRequest $request, Post $post, SavePost $save): RedirectResponse
     {
         $save->handle($post, $request->validated(), $request->file('images', []), $request->validated('remove_images', []));
-        Activity::record('post.updated', $post);
+        $this->activities->record('post.updated', $post);
 
         return redirect()->route('posts.show', $post)->with('status', 'Post updated.');
     }
@@ -93,7 +97,7 @@ class PostController extends Controller
     public function destroy(Post $post): RedirectResponse
     {
         $post->delete();
-        Activity::record('post.deleted', $post);
+        $this->activities->record('post.deleted', $post);
 
         return redirect()->route('posts.index')->with('status', 'Post deleted.');
     }

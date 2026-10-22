@@ -19,15 +19,4 @@ class Activity extends Model
     {
         return $this->morphTo();
     }
-
-    public static function record(string $action, ?Model $subject = null, ?User $by = null): void
-    {
-        static::create([
-            'user_id' => ($by ?? auth()->user())?->id,
-            'action' => $action,
-            'subject_type' => $subject?->getMorphClass(),
-            'subject_id' => $subject?->getKey(),
-            'ip_address' => request()->ip(),
-        ]);
-    }
 }
