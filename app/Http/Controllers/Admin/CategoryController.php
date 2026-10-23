@@ -5,20 +5,21 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CategoryRequest;
 use App\Models\Category;
-use App\Models\Post;
+use App\Repositories\Contracts\CategoryRepository;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class CategoryController extends Controller
 {
+    public function __construct(private readonly CategoryRepository $categories) {}
+
     /**
      * Display a listing of the resource.
      */
     public function index(): View
     {
         return view('admin.categories.index', [
-            'categories' => Category::withCount('posts')->orderBy('name')->get(),
+            'categories' => $this->categories->allWithPostCounts(),
         ]);
     }
 
@@ -27,7 +28,7 @@ class CategoryController extends Controller
      */
     public function store(CategoryRequest $request): RedirectResponse
     {
-        Category::create($request->validated());
+        $this->categories->create($request->validated());
 
         return back()->with('status', 'Category created successfully');
     }
@@ -37,7 +38,7 @@ class CategoryController extends Controller
      */
     public function update(CategoryRequest $request, Category $category): RedirectResponse
     {
-        $category->update($request->validated());
+        $this->categories->update($category, $request->validated());
 
         return back()->with('status', 'Category updated successfully');
     }
@@ -50,11 +51,7 @@ class CategoryController extends Controller
         if ($category->is_default) {
             return back()->withErrors(['category' => 'Default category cannot be deleted']);
         }
-        $default = Category::where('is_default', true)->firstOrFail();
-        DB::transaction(function () use ($category, $default) {
-            Post::withTrashed()->where('category_id', $category->id)->update(['category_id' => $default->id]);
-            $category->delete();
-        });
+        $this->categories->deleteMovingPostsToDefault($category);
 
         return back()->with('status', 'Category deleted successfully');
     }

@@ -8,20 +8,25 @@ use App\Http\Requests\UpdatePasswordRequest;
 use App\Http\Requests\UpdateProfileDetailsRequest;
 use App\Models\Profile;
 use App\Support\Pagination;
+use App\Repositories\Contracts\UserRepository;
+use App\Repositories\Contracts\ProfileRepository;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use App\Actions\RemoveAvatar;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class ProfileController extends Controller
 {
+    public function __construct(private readonly UserRepository $users, private readonly ProfileRepository $profiles) {}
+
     public function edit(Request $request): View
     {
         $user = $request->user();
 
         return view('profile.edit', [
             'user' => $user,
-            'profile' => $user->profile ?? new Profile,
+            'profile' => $this->profiles->forUser($user),
             'posts' => $user->posts()->latest()->paginate(Pagination::USER_POSTS),
         ]);
     }
@@ -29,12 +34,7 @@ class ProfileController extends Controller
     public function updateAccount(UpdateAccountRequest $request): RedirectResponse
     {
         $user = $request->user();
-        $user->fill($request->validated());
-        $emailChanged = $user->isDirty('email');
-        if ($emailChanged) {
-            $user->email_verified_at = null;
-        }
-        $user->save();
+        $emailChanged = $this->users->updateAccount($user, $request->validated());
         if ($emailChanged) {
             $user->sendEmailVerificationNotification();
         }
@@ -45,8 +45,7 @@ class ProfileController extends Controller
     public function updatePassword(UpdatePasswordRequest $request): RedirectResponse
     {
         $user = $request->user();
-        $user->password = $request->validated('password');
-        $user->save();
+        $this->users->updatePassword($user, $request->validated('password'));
 
         return back()->with('status', 'Password updated');
     }
@@ -59,14 +58,9 @@ class ProfileController extends Controller
         return back()->with('status', 'Profile updated');
     }
 
-    public function destroyAvatar(Request $request): RedirectResponse
+    public function destroyAvatar(Request $request, RemoveAvatar $remove): RedirectResponse
     {
-        $user = $request->user();
-        $profile = $user->profile;
-        if ($profile && $profile->avatar) {
-            Storage::disk('public')->delete($profile->avatar);
-            $profile->update(['avatar' => null]);
-
+        if ($remove->handle($request->user())) {
             return back()->with('status', 'Avatar deleted');
         }
 

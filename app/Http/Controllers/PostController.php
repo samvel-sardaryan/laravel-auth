@@ -6,10 +6,10 @@ use App\Actions\SavePost;
 use App\Data\PostFilters;
 use App\Enums\PostStatus;
 use App\Http\Requests\PostRequest;
-use App\Models\Category;
 use App\Models\Post;
 use App\Repositories\Contracts\ActivityRepository;
 use App\Support\Pagination;
+use App\Repositories\Contracts\CategoryRepository;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -18,7 +18,7 @@ use Illuminate\View\View;
 
 class PostController extends Controller
 {
-    public function __construct(private readonly ActivityRepository $activities) {}
+    public function __construct(private readonly ActivityRepository $activities, private readonly CategoryRepository $categories) {}
 
     /**
      * Display a listing of the resource.
@@ -34,7 +34,7 @@ class PostController extends Controller
             ->onEachSide(Pagination::LINKS_ON_EACH_SIDE)
             ->withQueryString();
 
-        return view('posts.index', ['posts' => $posts, 'categories' => Category::orderBy('name')->get()]);
+        return view('posts.index', ['posts' => $posts, 'categories' => $this->categories->allOrdered()]);
     }
 
     /**
@@ -42,7 +42,7 @@ class PostController extends Controller
      */
     public function create(): View
     {
-        return view('posts.form', ['post' => new Post, 'categories' => Category::orderBy('name')->get(), 'statuses' => PostStatus::cases()]);
+        return view('posts.form', ['post' => new Post, 'categories' => $this->categories->allOrdered(), 'statuses' => PostStatus::cases()]);
     }
 
     /**
@@ -77,7 +77,7 @@ class PostController extends Controller
      */
     public function edit(Post $post): View
     {
-        return view('posts.form', ['post' => $post->load('tags', 'images'), 'categories' => Category::orderBy('name')->get(), 'statuses' => PostStatus::cases()]);
+        return view('posts.form', ['post' => $post->load('tags', 'images'), 'categories' => $this->categories->allOrdered(), 'statuses' => PostStatus::cases()]);
     }
 
     /**

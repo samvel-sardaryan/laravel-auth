@@ -2,17 +2,20 @@
 
 namespace App\Observers;
 
-use App\Models\Role;
 use App\Models\User;
+use App\Repositories\Contracts\RoleRepository;
+use App\Repositories\Contracts\UserRepository;
 
 class UserObserver
 {
+    public function __construct(private readonly RoleRepository $roles, private readonly UserRepository $users) {}
+
     /**
      * Handle the User "created" event.
      */
     public function created(User $user): void
     {
-        $role = Role::where('name', config('roles.default'))->firstOrFail();
-        $user->roles()->attach($role->id);
+        $role = $this->roles->findByNameOrFail(config('roles.default'));        
+        $this->users->attachRole($user, $role);
     }
 }
