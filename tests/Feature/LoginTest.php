@@ -8,7 +8,7 @@ use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-class LoginTest extends TestCase
+final class LoginTest extends TestCase
 {
     use RefreshDatabase;
 

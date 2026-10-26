@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
-class DemoSeeder extends Seeder
+final class DemoSeeder extends Seeder
 {
     private const MARKER = 'Why I finally switched from plain PHP to Laravel';
 

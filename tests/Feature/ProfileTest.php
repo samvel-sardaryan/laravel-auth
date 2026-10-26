@@ -9,7 +9,7 @@ use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-class ProfileTest extends TestCase
+final class ProfileTest extends TestCase
 {
     use RefreshDatabase;
 

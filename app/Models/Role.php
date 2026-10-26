@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 #[Fillable('name', 'label')]
-class Role extends Model
+final class Role extends Model
 {
     public function users(): BelongsToMany
     {

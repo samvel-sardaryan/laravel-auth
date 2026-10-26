@@ -7,26 +7,24 @@ use App\Http\Requests\UpdateCommentRequest;
 use App\Models\Comment;
 use App\Models\Post;
 use App\Repositories\Contracts\ActivityRepository;
+use App\Repositories\Contracts\CommentRepository;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 
-class CommentController extends Controller
+final readonly class CommentController extends Controller
 {
-    public function __construct(private readonly ActivityRepository $activities) {}
+    public function __construct(private ActivityRepository $activities, private CommentRepository $comments) {}
 
     public function store(StoreCommentRequest $request, Post $post): RedirectResponse
     {
         Gate::authorize('view', $post);
         $parentId = $request->validated('parent_id');
-        if ($parentId) {
-            $parent = Comment::findOrFail($parentId);
-            $parentId = $parent->parent_id ?? $parent->id;
+        if ($parentId) { 
+            $parentId = $this->comments->topLevelIdOf((int) $parentId); 
         }
-        $comment = new Comment(['content' => $request->validated('content'), 'parent_id' => $parentId]);
-        $comment->user()->associate($request->user());
-        $post->comments()->save($comment);
+        $comment = $this->comments->create($post, $request->user(), $request->validated('content'), $parentId);
 
         return redirect(route('posts.show', $post).'#comment-'.$comment->id);
     }
@@ -38,15 +36,15 @@ class CommentController extends Controller
 
     public function update(UpdateCommentRequest $request, Comment $comment): RedirectResponse
     {
-        $comment->update($request->validated());
+        $this->comments->update($comment, $request->validated());
 
-        return redirect(route('posts.show', $comment->post).'#comment-'.$comment->id);
+        return redirect(route('posts.show', $comment->post_id).'#comment-'.$comment->id);
     }
 
     public function destroy(Request $request, Comment $comment): RedirectResponse
     {
         $byAuthor = $request->user()->id === $comment->user_id;
-        $comment->delete();
+        $this->comments->delete($comment);
         $this->activities->record($byAuthor ? 'comment.deleted' : 'comment.deleted_by_moderator', $comment);
 
         return back()->with('status', 'Comment deleted.');

@@ -5,13 +5,15 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreReportRequest;
 use App\Models\Comment;
 use App\Models\Post;
-use Illuminate\Database\Eloquent\Model;
+use App\Repositories\Contracts\ReportRepository;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Gate;
 use Symfony\Component\HttpFoundation\Response;
 
-class ReportController extends Controller
+final readonly class ReportController extends Controller
 {
+    public function __construct(private ReportRepository $reports){}
+
     public function post(StoreReportRequest $request, Post $post): RedirectResponse
     {
         Gate::authorize('view', $post);
@@ -24,11 +26,11 @@ class ReportController extends Controller
         return $this->file($request, $comment);
     }
 
-    private function file(StoreReportRequest $request, Model $target): RedirectResponse
+    private function file(StoreReportRequest $request, Post|Comment $target): RedirectResponse
     {
         abort_if($target->user_id === $request->user()->id, Response::HTTP_FORBIDDEN, 'You cannot report your own content.');
-        $report = $target->reports()->firstOrCreate(['reporter_id' => $request->user()->id], ['reason' => $request->validated('reason')]);
+        $isNew = $this->reports->file($target, $request->user(), $request->validated('reason'));
 
-        return back()->with('status', $report->wasRecentlyCreated ? 'Thanks, this has been reported.' : 'You already reported this.');
+        return back()->with('status', $isNew ? 'Thanks, this has been reported.' : 'You already reported this.');
     }
 }

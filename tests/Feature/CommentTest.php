@@ -11,7 +11,7 @@ use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-class CommentTest extends TestCase
+final class CommentTest extends TestCase
 {
     use RefreshDatabase;
 

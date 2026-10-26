@@ -16,9 +16,9 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
-class UserController extends Controller
+final readonly class UserController extends Controller
 {
-    public function __construct(private readonly ActivityRepository $activities, private readonly RoleRepository $roles, private readonly UserRepository $users) {}
+    public function __construct(private ActivityRepository $activities, private RoleRepository $roles, private UserRepository $users) {}
 
     public function index(Request $request): View
     {

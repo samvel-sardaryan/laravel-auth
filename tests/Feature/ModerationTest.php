@@ -11,7 +11,7 @@ use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-class ModerationTest extends TestCase
+final class ModerationTest extends TestCase
 {
     use RefreshDatabase;
 

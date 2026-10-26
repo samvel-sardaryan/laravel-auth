@@ -9,9 +9,9 @@ use App\Repositories\Contracts\CategoryRepository;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
-class CategoryController extends Controller
+final readonly class CategoryController extends Controller
 {
-    public function __construct(private readonly CategoryRepository $categories) {}
+    public function __construct(private CategoryRepository $categories) {}
 
     /**
      * Display a listing of the resource.

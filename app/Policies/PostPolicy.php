@@ -7,7 +7,7 @@ use App\Models\Post;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
 
-class PostPolicy
+final readonly class PostPolicy
 {
     /**
      * Determine whether the user can view the model.

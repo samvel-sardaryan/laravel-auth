@@ -3,23 +3,22 @@
 namespace App\Http\Controllers;
 
 use App\Models\Post;
+use App\Repositories\Contracts\PostRepository;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 
-class LikeController extends Controller
+final readonly class LikeController extends Controller
 {
+    public function __construct(private PostRepository $posts) {}
+
     /**
      * Handle the incoming request.
      */
     public function __invoke(Request $request, Post $post): RedirectResponse
     {
         Gate::authorize('view', $post);
-        $inserted = DB::table('post_likes')->insertOrIgnore(['user_id' => $request->user()->id, 'post_id' => $post->id]);
-        if ($inserted === 0) {
-            $post->likers()->detach($request->user()->id);
-        }
+        $this->posts->toggleLike($post, $request->user());
 
         return back();
     }

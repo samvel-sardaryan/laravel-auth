@@ -10,15 +10,16 @@ use App\Models\Post;
 use App\Repositories\Contracts\ActivityRepository;
 use App\Support\Pagination;
 use App\Repositories\Contracts\CategoryRepository;
-use Illuminate\Database\Eloquent\Builder;
+use App\Repositories\Contracts\PostRepository;
+use App\Repositories\Contracts\CommentRepository;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 
-class PostController extends Controller
+final readonly class PostController extends Controller
 {
-    public function __construct(private readonly ActivityRepository $activities, private readonly CategoryRepository $categories) {}
+    public function __construct(private ActivityRepository $activities, private CategoryRepository $categories, private PostRepository $posts, private CommentRepository $comments) {}
 
     /**
      * Display a listing of the resource.
@@ -26,11 +27,7 @@ class PostController extends Controller
     public function index(Request $request): View
     {
         $filters = PostFilters::fromRequest($request);
-        $posts = Post::published()
-            ->filtered($filters)
-            ->withCardData($request->user())
-            ->sorted($filters->sort)
-            ->paginate(Pagination::FEED)
+        $posts = $this->posts->paginateFeed($filters, $request->user(), Pagination::FEED)
             ->onEachSide(Pagination::LINKS_ON_EACH_SIDE)
             ->withQueryString();
 
@@ -50,9 +47,7 @@ class PostController extends Controller
      */
     public function store(PostRequest $request, SavePost $save): RedirectResponse
     {
-        $post = new Post;
-        $post->user()->associate($request->user());
-        $save->handle($post, $request->validated(), $request->file('images', []), []);
+        $post = $save->create($request->user(), $request->validated(), $request->file('images', []));
         $this->activities->record('post.created', $post);
 
         return redirect()->route('posts.show', $post)->with('status', 'Post created.');
@@ -64,10 +59,8 @@ class PostController extends Controller
     public function show(Request $request, Post $post): View
     {
         Gate::authorize('view', $post);
-        $post->load(['user', 'category', 'tags', 'images'])->loadCount(['likers', 'comments']);
-        $post->loadExists(['likers as liked' => fn ($q) => $q->where('post_likes.user_id', $request->user()?->id)]);
-        $comments = $post->comments()->whereNull('parent_id')->withTrashed()->where(fn (Builder $q) => $q->whereNull('deleted_at')->orWhereHas('replies'))
-            ->with(['user', 'replies' => fn ($q) => $q->with('user')->oldest()])->oldest()->get();
+        $post = $this->posts->loadForShow($post, $request->user());
+        $comments = $this->comments->threadFor($post);
 
         return view('posts.show', ['post' => $post, 'comments' => $comments]);
     }
@@ -77,7 +70,7 @@ class PostController extends Controller
      */
     public function edit(Post $post): View
     {
-        return view('posts.form', ['post' => $post->load('tags', 'images'), 'categories' => $this->categories->allOrdered(), 'statuses' => PostStatus::cases()]);
+        return view('posts.form', ['post' => $this->posts->loadForEdit($post), 'categories' => $this->categories->allOrdered(), 'statuses' => PostStatus::cases()]);
     }
 
     /**
@@ -85,7 +78,7 @@ class PostController extends Controller
      */
     public function update(PostRequest $request, Post $post, SavePost $save): RedirectResponse
     {
-        $save->handle($post, $request->validated(), $request->file('images', []), $request->validated('remove_images', []));
+        $save->update($post, $request->validated(), $request->file('images', []), $request->validated('remove_images', []));
         $this->activities->record('post.updated', $post);
 
         return redirect()->route('posts.show', $post)->with('status', 'Post updated.');
@@ -96,7 +89,7 @@ class PostController extends Controller
      */
     public function destroy(Post $post): RedirectResponse
     {
-        $post->delete();
+        $this->posts->delete($post);
         $this->activities->record('post.deleted', $post);
 
         return redirect()->route('posts.index')->with('status', 'Post deleted.');

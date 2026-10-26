@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 #[Fillable(['content', 'parent_id'])]
-class Comment extends Model
+final class Comment extends Model
 {
     public const int CONTENT_MAX_LENGTH = 2000;
 

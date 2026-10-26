@@ -8,7 +8,7 @@ use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-class AdminAccessTest extends TestCase
+final class AdminAccessTest extends TestCase
 {
     use RefreshDatabase;
 

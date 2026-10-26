@@ -3,33 +3,39 @@
 namespace App\Actions;
 
 use App\Models\Post;
-use App\Models\Tag;
+use App\Models\User;
+use App\Repositories\Contracts\PostRepository;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Throwable;
 
-class SavePost
+final readonly class SavePost
 {
-    public function handle(Post $post, array $data, array $newImages, array $removeImageIds): Post
+    public function __construct(private PostRepository $posts) {}
+
+    public function create(User $author, array $data, array $images): Post
     {
-        $paths = array_map(fn ($file) => $file->store('posts', 'public'), $newImages);
-        $oldPaths = [];
+        $paths = array_map(fn ($file) => $file->store('posts', 'public'), $images);
         try {
-            DB::transaction(function () use ($post, $data, $paths, $removeImageIds, &$oldPaths) {
-                $post->fill(Arr::only($data, ['title', 'content', 'status', 'category_id']))->save();
-                $post->tags()->sync(Tag::idsFromInput($data['tags'] ?? null));
-                $removed = $post->images()->whereIn('id', $removeImageIds)->get();
-                $oldPaths = $removed->pluck('path')->all();
-                $post->images()->whereIn('id', $removeImageIds)->delete();
-                $post->images()->createMany(array_map(fn ($path) => ['path' => $path], $paths));
-            });
+            $post = $this->posts->create($author, Arr::only($data, ['title', 'content', 'status', 'category_id']), $data['tags'] ?? null, $paths);
         } catch (Throwable $exception) {
             Storage::disk('public')->delete($paths);
             throw $exception;
         }
-        Storage::disk('public')->delete($oldPaths);
+        return $post;
+    }
 
+    public function update(Post $post, array $data, array $images, array $removeImageIds): Post
+    {
+        $paths = array_map(fn ($file) => $file->store('posts', 'public'), $images);
+        try { 
+            $oldPaths = $this->posts->update($post, Arr::only($data, ['title', 'content', 'status', 'category_id']), $data['tags'] ?? null, $paths, $removeImageIds); 
+        }
+        catch (Throwable $exception) {
+            Storage::disk('public')->delete($paths);
+            throw $exception;
+        }
+        Storage::disk('public')->delete($oldPaths);
         return $post;
     }
 }

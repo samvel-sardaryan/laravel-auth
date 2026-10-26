@@ -10,9 +10,9 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\Response;
 
-class VerifyEmailController extends Controller
+final readonly class VerifyEmailController extends Controller
 {
-    public function __construct(private readonly UserRepository $users) {}
+    public function __construct(private UserRepository $users) {}
 
     public function notice(Request $request): View|RedirectResponse
     {

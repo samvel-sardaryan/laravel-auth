@@ -6,19 +6,21 @@ use App\Models\User;
 use App\Support\Pagination;
 use App\Repositories\Contracts\UserRepository;
 use Illuminate\View\View;
+use App\Repositories\Contracts\PostRepository;
+use Illuminate\Http\Request;
 
-class UserProfileController extends Controller
+final readonly class UserProfileController extends Controller
 {
-    public function __construct(private readonly UserRepository $users) {}
+    public function __construct(private UserRepository $users, private PostRepository $posts) {}
 
     /**
      * Handle the incoming request.
      */
-    public function __invoke(User $user): View
+    public function __invoke(Request $request, User $user): View
     {
         return view('users.show', [
             'user' => $this->users->loadProfile($user),
-            'posts' => $user->posts()->published()->withCardData(request()->user())->latest()->paginate(Pagination::USER_POSTS),
+            'posts' => $this->posts->paginatePublishedBy($user, $request->user(), Pagination::USER_POSTS),
         ]);
     }
 }

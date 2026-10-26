@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 #[Fillable(['reporter_id', 'reason'])]
-class Report extends Model
+final class Report extends Model
 {
     public const int REASON_MAX_LENGTH = 255;
 

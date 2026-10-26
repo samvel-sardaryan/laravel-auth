@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable(['name', 'slug', 'is_default'])]
-class Category extends Model
+final class Category extends Model
 {
     public const int NAME_MAX_LENGTH = 50;
 

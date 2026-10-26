@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 #[Fillable(['first_name', 'last_name', 'phone', 'location', 'date_of_birth', 'bio', 'avatar'])]
-class Profile extends Model
+final class Profile extends Model
 {
     public const int NAME_MAX_LENGTH = 100;
 

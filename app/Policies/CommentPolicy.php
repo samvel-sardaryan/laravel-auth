@@ -5,7 +5,7 @@ namespace App\Policies;
 use App\Models\Comment;
 use App\Models\User;
 
-class CommentPolicy
+final readonly class CommentPolicy
 {
     /**
      * Determine whether the user can update the model.

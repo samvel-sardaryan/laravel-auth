@@ -10,7 +10,7 @@ use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-class PostTest extends TestCase
+final class PostTest extends TestCase
 {
     use RefreshDatabase;
 

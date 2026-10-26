@@ -20,7 +20,7 @@ use Illuminate\Notifications\Notifiable;
 #[Fillable(['name', 'email', 'password'])]
 #[Hidden(['password', 'remember_token'])]
 #[ObservedBy(UserObserver::class)]
-class User extends Authenticatable implements MustVerifyEmail
+final class User extends Authenticatable implements MustVerifyEmail
 {
     public const int NAME_MAX_LENGTH = 255;
 

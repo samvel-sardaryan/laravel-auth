@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 #[Fillable('name', 'label')]
-class Permission extends Model
+final class Permission extends Model
 {
     public function roles(): BelongsToMany
     {

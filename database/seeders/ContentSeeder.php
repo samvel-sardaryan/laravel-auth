@@ -8,7 +8,7 @@ use App\Models\Tag;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 
-class ContentSeeder extends Seeder
+final class ContentSeeder extends Seeder
 {
     /**
      * Run the database seeds.

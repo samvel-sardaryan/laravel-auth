@@ -17,7 +17,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 #[Fillable(['title', 'content', 'status', 'category_id'])]
-class Post extends Model
+final class Post extends Model
 {
     public const int TITLE_MAX_LENGTH = 150;
 

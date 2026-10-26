@@ -6,9 +6,9 @@ use App\Models\User;
 use App\Repositories\Contracts\RoleRepository;
 use App\Repositories\Contracts\UserRepository;
 
-class UserObserver
+final readonly class UserObserver
 {
-    public function __construct(private readonly RoleRepository $roles, private readonly UserRepository $users) {}
+    public function __construct(private RoleRepository $roles, private UserRepository $users) {}
 
     /**
      * Handle the User "created" event.

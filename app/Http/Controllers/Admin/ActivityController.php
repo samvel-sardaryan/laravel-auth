@@ -8,9 +8,9 @@ use App\Support\Pagination;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
-class ActivityController extends Controller
+final readonly class ActivityController extends Controller
 {
-    public function __construct(private readonly ActivityRepository $activities) {}
+    public function __construct(private ActivityRepository $activities) {}
 
     /**
      * Handle the incoming request.

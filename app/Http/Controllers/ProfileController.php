@@ -6,19 +6,18 @@ use App\Actions\SaveProfileDetails;
 use App\Http\Requests\UpdateAccountRequest;
 use App\Http\Requests\UpdatePasswordRequest;
 use App\Http\Requests\UpdateProfileDetailsRequest;
-use App\Models\Profile;
 use App\Support\Pagination;
 use App\Repositories\Contracts\UserRepository;
 use App\Repositories\Contracts\ProfileRepository;
+use App\Repositories\Contracts\PostRepository;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use App\Actions\RemoveAvatar;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
-class ProfileController extends Controller
+final readonly class ProfileController extends Controller
 {
-    public function __construct(private readonly UserRepository $users, private readonly ProfileRepository $profiles) {}
+    public function __construct(private UserRepository $users, private ProfileRepository $profiles, private PostRepository $posts) {}
 
     public function edit(Request $request): View
     {
@@ -27,7 +26,7 @@ class ProfileController extends Controller
         return view('profile.edit', [
             'user' => $user,
             'profile' => $this->profiles->forUser($user),
-            'posts' => $user->posts()->latest()->paginate(Pagination::USER_POSTS),
+            'posts' => $this->posts->paginateBy($user, Pagination::USER_POSTS)
         ]);
     }
 

@@ -5,9 +5,9 @@ namespace App\Listeners;
 use App\Repositories\Contracts\ActivityRepository;
 use Illuminate\Auth\Events\Lockout;
 
-class LogLockout
+final readonly class LogLockout
 {
-    public function __construct(private readonly ActivityRepository $activities) {}
+    public function __construct(private ActivityRepository $activities) {}
 
     /**
      * Handle the event.

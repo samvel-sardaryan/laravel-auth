@@ -5,9 +5,9 @@ namespace App\Listeners;
 use App\Repositories\Contracts\ActivityRepository;
 use Illuminate\Auth\Events\PasswordReset;
 
-class LogPasswordReset
+final readonly class LogPasswordReset
 {
-    public function __construct(private readonly ActivityRepository $activities) {}
+    public function __construct(private ActivityRepository $activities) {}
 
     /**
      * Handle the event.

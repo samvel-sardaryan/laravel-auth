@@ -9,9 +9,9 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
 use Throwable;
 
-class SaveProfileDetails
+final readonly class SaveProfileDetails
 {
-    public function __construct(private readonly ProfileRepository $profiles) {}
+    public function __construct(private ProfileRepository $profiles) {}
 
     public function handle(User $user, array $data, ?UploadedFile $avatar): void
     {

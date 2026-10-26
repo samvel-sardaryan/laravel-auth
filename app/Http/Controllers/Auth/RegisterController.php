@@ -9,9 +9,9 @@ use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
-class RegisterController extends Controller
+final readonly class RegisterController extends Controller
 {
-    public function __construct(private readonly UserRepository $users) {}
+    public function __construct(private UserRepository $users) {}
 
     public function create(): View
     {

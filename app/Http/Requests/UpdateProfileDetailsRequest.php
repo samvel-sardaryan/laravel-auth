@@ -7,7 +7,7 @@ use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateProfileDetailsRequest extends FormRequest
+final class UpdateProfileDetailsRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.

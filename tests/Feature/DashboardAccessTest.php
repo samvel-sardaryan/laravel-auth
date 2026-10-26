@@ -5,7 +5,7 @@ namespace Tests\Feature;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-class DashboardAccessTest extends TestCase
+final class DashboardAccessTest extends TestCase
 {
     use RefreshDatabase;
 

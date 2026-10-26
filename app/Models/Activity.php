@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 #[Fillable(['user_id', 'action', 'subject_type', 'subject_id', 'ip_address'])]
-class Activity extends Model
+final class Activity extends Model
 {
     public function user(): BelongsTo
     {

@@ -7,7 +7,7 @@ use App\Models\User;
 use Illuminate\Database\Seeder;
 use RuntimeException;
 
-class AdminUserSeeder extends Seeder
+final class AdminUserSeeder extends Seeder
 {
     /**
      * Run the database seeds.

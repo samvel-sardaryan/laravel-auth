@@ -13,6 +13,12 @@ use App\Repositories\Contracts\ProfileRepository;
 use App\Repositories\Eloquent\EloquentProfileRepository;
 use App\Repositories\Contracts\CategoryRepository;
 use App\Repositories\Eloquent\EloquentCategoryRepository;
+use App\Repositories\Contracts\PostRepository;
+use App\Repositories\Eloquent\EloquentPostRepository;
+use App\Repositories\Contracts\CommentRepository;
+use App\Repositories\Eloquent\EloquentCommentRepository;
+use App\Repositories\Contracts\ReportRepository;
+use App\Repositories\Eloquent\EloquentReportRepository;
 
 final class RepositoryServiceProvider extends ServiceProvider
 {
@@ -22,5 +28,8 @@ final class RepositoryServiceProvider extends ServiceProvider
         UserRepository::class => EloquentUserRepository::class,
         ProfileRepository::class => EloquentProfileRepository::class,
         CategoryRepository::class => EloquentCategoryRepository::class,
+        PostRepository::class => EloquentPostRepository::class,
+        CommentRepository::class => EloquentCommentRepository::class,
+        ReportRepository::class => EloquentReportRepository::class,
     ];
 }

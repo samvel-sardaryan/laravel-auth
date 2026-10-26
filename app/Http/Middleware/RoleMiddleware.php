@@ -6,7 +6,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class RoleMiddleware
+final readonly class RoleMiddleware
 {
     /**
      * Handle an incoming request.
