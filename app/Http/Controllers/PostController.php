@@ -2,16 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Actions\SavePost;
 use App\Data\PostFilters;
 use App\Enums\PostStatus;
 use App\Http\Requests\PostRequest;
 use App\Models\Post;
-use App\Repositories\Contracts\ActivityRepository;
+use App\Services\CategoryService;
+use App\Services\CommentService;
+use App\Services\PostService;
 use App\Support\Pagination;
-use App\Repositories\Contracts\CategoryRepository;
-use App\Repositories\Contracts\PostRepository;
-use App\Repositories\Contracts\CommentRepository;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -19,7 +17,7 @@ use Illuminate\View\View;
 
 final readonly class PostController extends Controller
 {
-    public function __construct(private ActivityRepository $activities, private CategoryRepository $categories, private PostRepository $posts, private CommentRepository $comments) {}
+    public function __construct(private CategoryService $categories, private PostService $posts, private CommentService $comments) {}
 
     /**
      * Display a listing of the resource.
@@ -27,7 +25,7 @@ final readonly class PostController extends Controller
     public function index(Request $request): View
     {
         $filters = PostFilters::fromRequest($request);
-        $posts = $this->posts->paginateFeed($filters, $request->user(), Pagination::FEED)
+        $posts = $this->posts->feed($filters, $request->user())
             ->onEachSide(Pagination::LINKS_ON_EACH_SIDE)
             ->withQueryString();
 
@@ -45,10 +43,9 @@ final readonly class PostController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(PostRequest $request, SavePost $save): RedirectResponse
+    public function store(PostRequest $request): RedirectResponse
     {
-        $post = $save->create($request->user(), $request->validated(), $request->file('images', []));
-        $this->activities->record('post.created', $post);
+        $post = $this->posts->create($request->user(), $request->validated(), $request->file('images', []));
 
         return redirect()->route('posts.show', $post)->with('status', 'Post created.');
     }
@@ -59,7 +56,7 @@ final readonly class PostController extends Controller
     public function show(Request $request, Post $post): View
     {
         Gate::authorize('view', $post);
-        $post = $this->posts->loadForShow($post, $request->user());
+        $post = $this->posts->forShow($post, $request->user());
         $comments = $this->comments->threadFor($post);
 
         return view('posts.show', ['post' => $post, 'comments' => $comments]);
@@ -70,16 +67,15 @@ final readonly class PostController extends Controller
      */
     public function edit(Post $post): View
     {
-        return view('posts.form', ['post' => $this->posts->loadForEdit($post), 'categories' => $this->categories->allOrdered(), 'statuses' => PostStatus::cases()]);
+        return view('posts.form', ['post' => $this->posts->forEdit($post), 'categories' => $this->categories->allOrdered(), 'statuses' => PostStatus::cases()]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(PostRequest $request, Post $post, SavePost $save): RedirectResponse
+    public function update(PostRequest $request, Post $post): RedirectResponse
     {
-        $save->update($post, $request->validated(), $request->file('images', []), $request->validated('remove_images', []));
-        $this->activities->record('post.updated', $post);
+        $this->posts->update($post, $request->validated(), $request->file('images', []), $request->validated('remove_images', []));
 
         return redirect()->route('posts.show', $post)->with('status', 'Post updated.');
     }
@@ -90,7 +86,6 @@ final readonly class PostController extends Controller
     public function destroy(Post $post): RedirectResponse
     {
         $this->posts->delete($post);
-        $this->activities->record('post.deleted', $post);
 
         return redirect()->route('posts.index')->with('status', 'Post deleted.');
     }

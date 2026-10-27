@@ -3,8 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Repositories\Contracts\UserRepository;
-use Illuminate\Auth\Events\Verified;
+use App\Services\RegistrationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -12,7 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 final readonly class VerifyEmailController extends Controller
 {
-    public function __construct(private UserRepository $users) {}
+    public function __construct(private RegistrationService $registration) {}
 
     public function notice(Request $request): View|RedirectResponse
     {
@@ -21,14 +20,13 @@ final readonly class VerifyEmailController extends Controller
 
     public function verify(Request $request, string $id, string $hash): RedirectResponse
     {
-        $user = $this->users->findOrFail($id);
+        $user = $this->registration->findForVerification((int) $id);
         if (! hash_equals(sha1($user->getEmailForVerification()), $hash)) {
             abort(Response::HTTP_FORBIDDEN, 'This link is invalid');
         } elseif ($user->hasVerifiedEmail()) {
             return redirect()->route('dashboard')->with('status', 'You are already verified');
         }
-        $this->users->markEmailAsVerified($user);
-        event(new Verified($user));
+        $this->registration->verifyEmail($user);
         if ($request->user()) {
             return redirect()->route('dashboard')->with('status', 'Email verified successfully');
         } else {

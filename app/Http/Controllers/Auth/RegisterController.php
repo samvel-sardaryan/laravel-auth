@@ -4,14 +4,13 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RegisterRequest;
-use App\Repositories\Contracts\UserRepository;
-use Illuminate\Auth\Events\Registered;
+use App\Services\RegistrationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
 final readonly class RegisterController extends Controller
 {
-    public function __construct(private UserRepository $users) {}
+    public function __construct(private RegistrationService $registration) {}
 
     public function create(): View
     {
@@ -20,9 +19,7 @@ final readonly class RegisterController extends Controller
 
     public function store(RegisterRequest $request): RedirectResponse
     {
-        $validated = $request->validated();
-        $user = $this->users->create($validated);
-        event(new Registered($user));
+        $this->registration->register($request->validated());
 
         return redirect()->route('login')->with('status', 'User registered successfully, check your email');
     }

@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
-use App\Repositories\Contracts\UserRepository;
+use App\Services\AccountService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -12,7 +12,7 @@ use Illuminate\View\View;
 
 final readonly class LoginController extends Controller
 {
-    public function __construct(private UserRepository $users) {}
+    public function __construct(private AccountService $account) {}
 
     public function create(): View
     {
@@ -23,7 +23,7 @@ final readonly class LoginController extends Controller
     {
         $request->authenticate();
         $request->session()->regenerate();
-        $this ->users->recordLogin($request->user());
+        $this->account->recordLogin($request->user());
 
         return redirect()->intended(route('dashboard'));
     }

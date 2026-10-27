@@ -2,22 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use App\Actions\SaveProfileDetails;
 use App\Http\Requests\UpdateAccountRequest;
 use App\Http\Requests\UpdatePasswordRequest;
 use App\Http\Requests\UpdateProfileDetailsRequest;
-use App\Support\Pagination;
-use App\Repositories\Contracts\UserRepository;
-use App\Repositories\Contracts\ProfileRepository;
-use App\Repositories\Contracts\PostRepository;
+use App\Services\AccountService;
+use App\Services\PostService;
+use App\Services\ProfileService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use App\Actions\RemoveAvatar;
 use Illuminate\View\View;
 
 final readonly class ProfileController extends Controller
 {
-    public function __construct(private UserRepository $users, private ProfileRepository $profiles, private PostRepository $posts) {}
+    public function __construct(private AccountService $account, private ProfileService $profiles, private PostService $posts) {}
 
     public function edit(Request $request): View
     {
@@ -26,17 +23,13 @@ final readonly class ProfileController extends Controller
         return view('profile.edit', [
             'user' => $user,
             'profile' => $this->profiles->forUser($user),
-            'posts' => $this->posts->paginateBy($user, Pagination::USER_POSTS)
+            'posts' => $this->posts->ownPosts($user),
         ]);
     }
 
     public function updateAccount(UpdateAccountRequest $request): RedirectResponse
     {
-        $user = $request->user();
-        $emailChanged = $this->users->updateAccount($user, $request->validated());
-        if ($emailChanged) {
-            $user->sendEmailVerificationNotification();
-        }
+        $this->account->updateAccount($request->user(), $request->validated());
 
         return back()->with('status', 'Profile updated');
     }
@@ -44,22 +37,21 @@ final readonly class ProfileController extends Controller
     public function updatePassword(UpdatePasswordRequest $request): RedirectResponse
     {
         $user = $request->user();
-        $this->users->updatePassword($user, $request->validated('password'));
+        $this->account->updatePassword($user, $request->validated('password'));
 
         return back()->with('status', 'Password updated');
     }
 
-    public function updateDetails(UpdateProfileDetailsRequest $request, SaveProfileDetails $save): RedirectResponse
+    public function updateDetails(UpdateProfileDetailsRequest $request): RedirectResponse
     {
-        $user = $request->user();
-        $save->handle($user, $request->validated(), $request->file('avatar'));
+        $this->profiles->saveDetails($request->user(), $request->validated(), $request->file('avatar'));
 
         return back()->with('status', 'Profile updated');
     }
 
-    public function destroyAvatar(Request $request, RemoveAvatar $remove): RedirectResponse
+    public function destroyAvatar(Request $request): RedirectResponse
     {
-        if ($remove->handle($request->user())) {
+        if ($this->profiles->removeAvatar($request->user())) {
             return back()->with('status', 'Avatar deleted');
         }
 

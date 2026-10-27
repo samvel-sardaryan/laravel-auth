@@ -5,8 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ResetPasswordRequest;
 use App\Models\User;
-use App\Repositories\Contracts\UserRepository;
-use Illuminate\Auth\Events\PasswordReset;
+use App\Services\AccountService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
@@ -14,7 +13,7 @@ use Illuminate\View\View;
 
 final readonly class ResetPasswordController extends Controller
 {
-    public function __construct(private UserRepository $users) {}
+    public function __construct(private AccountService $account) {}
 
     public function create(Request $request, string $token): View
     {
@@ -27,8 +26,7 @@ final readonly class ResetPasswordController extends Controller
     public function store(ResetPasswordRequest $request): RedirectResponse
     {
         $status = Password::reset($request->only('email', 'password', 'token'), function (User $user, string $password) {
-            $this->users->resetPassword($user, $password);
-            event(new PasswordReset($user));
+            $this->account->resetPassword($user, $password);
         });
 
         return $status === Password::PASSWORD_RESET
