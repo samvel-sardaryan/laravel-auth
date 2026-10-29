@@ -4,12 +4,12 @@ namespace App\Repositories\Eloquent;
 
 use App\Models\Activity;
 use App\Models\User;
-use App\Repositories\Contracts\ActivityRepository;
+use App\Repositories\Contracts\ActivityRepositoryInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\LengthAwarePaginator;
 
-final readonly class EloquentActivityRepository implements ActivityRepository
+final readonly class EloquentActivityRepository implements ActivityRepositoryInterface
 {
     public function record(string $action, ?Model $subject = null, ?User $by = null): void
     {

@@ -3,19 +3,20 @@
 namespace App\Services;
 
 use App\Models\User;
-use App\Repositories\Contracts\UserRepository;
+use App\Repositories\Contracts\UserRepositoryInterface;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Events\Verified;
 
-
 final readonly class RegistrationService
 {
-    public function __construct(private UserRepository $users) {}
+    public function __construct(private UserRepositoryInterface $users) {}
 
     public function register(array $data): User
     {
         $user = $this->users->create($data);
+
         event(new Registered($user));
+
         return $user;
     }
 

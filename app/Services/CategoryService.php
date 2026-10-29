@@ -3,12 +3,12 @@
 namespace App\Services;
 
 use App\Models\Category;
-use App\Repositories\Contracts\CategoryRepository;
+use App\Repositories\Contracts\CategoryRepositoryInterface;
 use Illuminate\Database\Eloquent\Collection;
 
 final readonly class CategoryService
 {
-    public function __construct(private CategoryRepository $categories) {}
+    public function __construct(private CategoryRepositoryInterface $categories) {}
 
     public function allOrdered(): Collection
     {
@@ -35,7 +35,9 @@ final readonly class CategoryService
         if ($category->is_default) {
             return false;
         }
+
         $this->categories->deleteMovingPostsToDefault($category);
+
         return true;
     }
 }

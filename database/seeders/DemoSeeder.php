@@ -147,14 +147,17 @@ final class DemoSeeder extends Seeder
                 'phone' => $full ? '+374 '.rand(10, 99).' '.rand(100, 999).' '.rand(100, 999) : null,
                 'date_of_birth' => $full ? $this->now->copy()->subYears(rand(19, 45))->subDays(rand(0, 364))->toDateString() : null,
             ];
+
             if ($index % 5 === 4) {
                 $details = ['bio' => $details['bio'], 'location' => $details['location']];
             }
+
             if ($index < 14 || $user->is($admin)) {
                 [$from, $to] = $palettes[$index % count($palettes)];
                 $initials = mb_strtoupper(mb_substr($first, 0, 1).mb_substr($last, 0, 1));
                 $details['avatar'] = $this->makeImage('avatars', 256, 256, $from, $to, $initials, 72);
             }
+
             $user->profile()->updateOrCreate([], $details);
         }
     }
@@ -168,6 +171,7 @@ final class DemoSeeder extends Seeder
             if ($user->is($admin) || ! $user->hasAnyRole(['moderator', 'admin'])) {
                 continue;
             }
+
             $this->log('role.changed', $admin->id, 'user', $user->id, $this->after($this->joined[$user->id], 60, 60 * 24 * 10));
         }
     }
@@ -261,9 +265,11 @@ final class DemoSeeder extends Seeder
             if ($post->status !== PostStatus::Published || in_array($key, ['spam', 'followers', 'ignore', 'wrong-account'], true)) {
                 continue;
             }
+
             $topCount = $key === 'switch' ? 6 : rand(1, 5);
             for ($t = 0; $t < $topCount; $t++) {
                 $top = $this->comment($post, $verified->random(), $tops[array_rand($tops)], null, $this->after($post->created_at, 30, 60 * 24 * 5));
+
                 if (rand(0, 1) === 1) {
                     $previous = $top;
                     for ($r = 0, $n = rand(1, 3); $r < $n; $r++) {
@@ -293,6 +299,7 @@ final class DemoSeeder extends Seeder
             if ($post->status !== PostStatus::Published) {
                 continue;
             }
+
             $count = in_array($key, ['switch', 'eager', 'queues'], true) ? rand(12, 18) : rand(0, 9);
             $likers = $verified->shuffle()->take($count);
             DB::table('post_likes')->insertOrIgnore($likers->map(fn (User $user) => [
@@ -473,6 +480,7 @@ final class DemoSeeder extends Seeder
         }
 
         $white = imagecolorallocate($image, 255, 255, 255);
+
         if ($this->font === null) {
             imagestring($image, 5, (int) max(4, ($width - imagefontwidth(5) * strlen($text)) / 2), (int) ($height / 2 - 8), $text, $white);
         } else {
@@ -482,6 +490,7 @@ final class DemoSeeder extends Seeder
             foreach (explode(' ', $text) as $word) {
                 $candidate = trim($line.' '.$word);
                 $box = imagettfbbox($size, 0, $this->font, $candidate);
+
                 if ($line !== '' && $width * 0.84 < $box[2] - $box[0]) {
                     $lines[] = $line;
                     $line = $word;

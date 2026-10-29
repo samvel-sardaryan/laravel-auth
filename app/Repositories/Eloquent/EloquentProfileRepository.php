@@ -4,10 +4,10 @@ namespace App\Repositories\Eloquent;
 
 use App\Models\Profile;
 use App\Models\User;
+use App\Repositories\Contracts\ProfileRepositoryInterface;
 use Illuminate\Support\Facades\DB;
-use App\Repositories\Contracts\ProfileRepository;
 
-final readonly class EloquentProfileRepository implements ProfileRepository
+final readonly class EloquentProfileRepository implements ProfileRepositoryInterface
 {
     public function forUser(User $user): Profile
     {

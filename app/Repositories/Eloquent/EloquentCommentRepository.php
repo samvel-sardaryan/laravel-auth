@@ -5,11 +5,11 @@ namespace App\Repositories\Eloquent;
 use App\Models\Comment;
 use App\Models\Post;
 use App\Models\User;
-use App\Repositories\Contracts\CommentRepository;
-use Illuminate\Database\Eloquent\Collection;
+use App\Repositories\Contracts\CommentRepositoryInterface;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 
-final readonly class EloquentCommentRepository implements CommentRepository
+final readonly class EloquentCommentRepository implements CommentRepositoryInterface
 {
     public function threadFor(Post $post): Collection
     {
@@ -23,6 +23,7 @@ final readonly class EloquentCommentRepository implements CommentRepository
     public function topLevelIdOf(int $commentId): int
     {
         $comment = Comment::findOrFail($commentId);
+
         return $comment->parent_id ?? $comment->id;
     }
 
@@ -31,6 +32,7 @@ final readonly class EloquentCommentRepository implements CommentRepository
         $comment = new Comment(['content' => $content, 'parent_id' => $parentId]);
         $comment->user()->associate($author);
         $post->comments()->save($comment);
+
         return $comment;
     }
 

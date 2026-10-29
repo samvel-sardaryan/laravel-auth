@@ -7,8 +7,9 @@ use App\Models\Post;
 use App\Models\User;
 use Illuminate\Pagination\LengthAwarePaginator;
 
-interface ReportRepository
+interface ReportRepositoryInterface
 {
     public function file(Post|Comment $target, User $reporter, string $reason): bool;
+
     public function paginateQueue(int $perPage): LengthAwarePaginator;
 }

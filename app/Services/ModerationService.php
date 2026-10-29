@@ -5,16 +5,16 @@ namespace App\Services;
 use App\Models\Comment;
 use App\Models\Post;
 use App\Models\User;
-use App\Repositories\Contracts\ActivityRepository;
-use App\Repositories\Contracts\CommentRepository;
-use App\Repositories\Contracts\PostRepository;
-use App\Repositories\Contracts\ReportRepository;
+use App\Repositories\Contracts\ActivityRepositoryInterface;
+use App\Repositories\Contracts\CommentRepositoryInterface;
+use App\Repositories\Contracts\PostRepositoryInterface;
+use App\Repositories\Contracts\ReportRepositoryInterface;
 use App\Support\Pagination;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 final readonly class ModerationService
 {
-    public function __construct(private ReportRepository $reports, private PostRepository $posts, private CommentRepository $comments, private ActivityRepository $activities) {}
+    public function __construct(private ReportRepositoryInterface $reports, private PostRepositoryInterface $posts, private CommentRepositoryInterface $comments, private ActivityRepositoryInterface $activities) {}
 
     public function report(Post|Comment $target, User $reporter, string $reason): bool
     {

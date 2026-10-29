@@ -17,6 +17,7 @@ final readonly class PostPolicy
         if ($post->status === PostStatus::Published) {
             return Response::allow();
         }
+
         if ($user && ($user->id === $post->user_id || $user->hasPermission('manage_posts'))) {
             return Response::allow();
         }

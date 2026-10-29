@@ -21,12 +21,15 @@ final readonly class VerifyEmailController extends Controller
     public function verify(Request $request, string $id, string $hash): RedirectResponse
     {
         $user = $this->registration->findForVerification((int) $id);
+
         if (! hash_equals(sha1($user->getEmailForVerification()), $hash)) {
             abort(Response::HTTP_FORBIDDEN, 'This link is invalid');
         } elseif ($user->hasVerifiedEmail()) {
             return redirect()->route('dashboard')->with('status', 'You are already verified');
         }
+
         $this->registration->verifyEmail($user);
+
         if ($request->user()) {
             return redirect()->route('dashboard')->with('status', 'Email verified successfully');
         } else {
@@ -39,6 +42,7 @@ final readonly class VerifyEmailController extends Controller
         if ($request->user()->hasVerifiedEmail()) {
             return redirect()->route('dashboard')->with('status', 'You are already verified');
         }
+
         $request->user()->sendEmailVerificationNotification();
 
         return back()->with('status', 'Verification link sent');

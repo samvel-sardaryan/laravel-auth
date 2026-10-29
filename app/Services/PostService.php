@@ -5,8 +5,8 @@ namespace App\Services;
 use App\Data\PostFilters;
 use App\Models\Post;
 use App\Models\User;
-use App\Repositories\Contracts\ActivityRepository;
-use App\Repositories\Contracts\PostRepository;
+use App\Repositories\Contracts\ActivityRepositoryInterface;
+use App\Repositories\Contracts\PostRepositoryInterface;
 use App\Support\Pagination;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Arr;
@@ -15,7 +15,7 @@ use Throwable;
 
 final readonly class PostService
 {
-    public function __construct(private PostRepository $posts, private ActivityRepository $activities) {}
+    public function __construct(private PostRepositoryInterface $posts, private ActivityRepositoryInterface $activities) {}
 
     public function feed(PostFilters $filters, ?User $viewer): LengthAwarePaginator
     {
@@ -52,6 +52,7 @@ final readonly class PostService
             throw $exception;
         }
         $this->activities->record('post.created', $post);
+
         return $post;
     }
 
@@ -66,6 +67,7 @@ final readonly class PostService
         }
         Storage::disk('public')->delete($oldPaths);
         $this->activities->record('post.updated', $post);
+
         return $post;
     }
 

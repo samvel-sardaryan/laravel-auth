@@ -29,6 +29,7 @@ final readonly class UserController extends Controller
     public function updateRole(UpdateUserRoleRequest $request, User $user): RedirectResponse
     {
         $role = $this->userAdmin->changeRole($user, (int) $request->validated('role_id'), $request->user());
+
         return back()->with('status', "{$user->name} role updated successfully to {$role->name}");
     }
 }

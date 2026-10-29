@@ -4,8 +4,8 @@ namespace App\Services;
 
 use App\Models\Profile;
 use App\Models\User;
-use App\Repositories\Contracts\ProfileRepository;
-use App\Repositories\Contracts\UserRepository;
+use App\Repositories\Contracts\ProfileRepositoryInterface;
+use App\Repositories\Contracts\UserRepositoryInterface;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
@@ -13,7 +13,7 @@ use Throwable;
 
 final readonly class ProfileService
 {
-    public function __construct(private ProfileRepository $profiles, private UserRepository $users) {}
+    public function __construct(private ProfileRepositoryInterface $profiles, private UserRepositoryInterface $users) {}
 
     public function forUser(User $user): Profile
     {
@@ -30,17 +30,21 @@ final readonly class ProfileService
         $newPath = $avatar?->store('avatars', 'public');
         $oldPath = $this->profiles->forUser($user)->avatar;
         $details = Arr::except($data, 'avatar');
+
         if ($newPath) {
             $details['avatar'] = $newPath;
         }
+
         try {
             $this->profiles->saveDetails($user, $details);
         } catch (Throwable $e) {
             if ($newPath) {
                 Storage::disk('public')->delete($newPath);
             }
+
             throw $e;
         }
+
         if ($newPath && $oldPath) {
             Storage::disk('public')->delete($oldPath);
         }
@@ -49,11 +53,14 @@ final readonly class ProfileService
     public function removeAvatar(User $user): bool
     {
         $profile = $this->profiles->forUser($user);
-        if (!$profile->avatar) {
+
+        if (! $profile->avatar) {
             return false;
         }
+
         Storage::disk('public')->delete($profile->avatar);
         $this->profiles->clearAvatar($profile);
+
         return true;
     }
 }

@@ -3,10 +3,10 @@
 namespace App\Repositories\Eloquent;
 
 use App\Models\Role;
+use App\Repositories\Contracts\RoleRepositoryInterface;
 use Illuminate\Database\Eloquent\Collection;
-use App\Repositories\Contracts\RoleRepository;
 
-final readonly class EloquentRoleRepository implements RoleRepository
+final readonly class EloquentRoleRepository implements RoleRepositoryInterface
 {
     public function allOrdered(): Collection
     {

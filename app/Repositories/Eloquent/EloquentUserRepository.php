@@ -2,16 +2,15 @@
 
 namespace App\Repositories\Eloquent;
 
-
-use App\Models\User;
-use App\Models\Role;
 use App\Data\UserFilters;
-use App\Repositories\Contracts\UserRepository;
+use App\Models\Role;
+use App\Models\User;
+use App\Repositories\Contracts\UserRepositoryInterface;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
-final readonly class EloquentUserRepository implements UserRepository
+final readonly class EloquentUserRepository implements UserRepositoryInterface
 {
     public function create(array $attributes): User
     {
@@ -38,10 +37,13 @@ final readonly class EloquentUserRepository implements UserRepository
     {
         $user->fill($attributes);
         $emailChanged = $user->isDirty('email');
-        if ($emailChanged) { 
-            $user->email_verified_at = null; 
+
+        if ($emailChanged) {
+            $user->email_verified_at = null;
         }
+
         $user->save();
+
         return $emailChanged;
     }
 
@@ -73,6 +75,7 @@ final readonly class EloquentUserRepository implements UserRepository
     {
         $oldRoles = $user->roles->pluck('name')->join(', ');
         DB::transaction(fn () => $user->roles()->sync($role->id));
+
         return $oldRoles;
     }
 

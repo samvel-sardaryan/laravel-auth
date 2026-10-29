@@ -28,6 +28,7 @@ final readonly class UserPolicy
         if ($user->is($target)) {
             return Response::deny('You can not update your own role');
         }
+
         if (! $user->hasPermission('manage_users')) {
             return Response::deny('You can not update user role');
         }

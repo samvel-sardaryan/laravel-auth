@@ -3,12 +3,12 @@
 namespace App\Services;
 
 use App\Models\User;
-use App\Repositories\Contracts\UserRepository;
+use App\Repositories\Contracts\UserRepositoryInterface;
 use Illuminate\Auth\Events\PasswordReset;
 
 final readonly class AccountService
 {
-    public function __construct(private UserRepository $users) {}
+    public function __construct(private UserRepositoryInterface $users) {}
 
     public function recordLogin(User $user): void
     {
@@ -17,8 +17,8 @@ final readonly class AccountService
 
     public function updateAccount(User $user, array $data): void
     {
-        if ($this->users->updateAccount($user, $data)) { 
-            $user->sendEmailVerificationNotification(); 
+        if ($this->users->updateAccount($user, $data)) {
+            $user->sendEmailVerificationNotification();
         }
     }
 

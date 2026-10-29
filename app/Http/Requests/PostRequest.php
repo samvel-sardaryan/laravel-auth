@@ -48,6 +48,7 @@ final class PostRequest extends FormRequest
                 $existing = $post ? $post->images()->count() : 0;
                 $removing = $post ? $post->images()->whereIn('id', $this->input('remove_images', []))->count() : 0;
                 $adding = count($this->file('images', []));
+
                 if ($existing - $removing + $adding > Post::MAX_IMAGES) {
                     $validator->errors()->add('images', 'You cannot add more than '.Post::MAX_IMAGES.' images.');
                 }

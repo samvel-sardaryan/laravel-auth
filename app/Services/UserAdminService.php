@@ -5,9 +5,9 @@ namespace App\Services;
 use App\Data\UserFilters;
 use App\Models\Role;
 use App\Models\User;
-use App\Repositories\Contracts\ActivityRepository;
-use App\Repositories\Contracts\RoleRepository;
-use App\Repositories\Contracts\UserRepository;
+use App\Repositories\Contracts\ActivityRepositoryInterface;
+use App\Repositories\Contracts\RoleRepositoryInterface;
+use App\Repositories\Contracts\UserRepositoryInterface;
 use App\Support\Pagination;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Log;
 
 final readonly class UserAdminService
 {
-    public function __construct(private UserRepository $users, private RoleRepository $roles, private ActivityRepository $activities) {}
+    public function __construct(private UserRepositoryInterface $users, private RoleRepositoryInterface $roles, private ActivityRepositoryInterface $activities) {}
 
     public function listUsers(UserFilters $filters): LengthAwarePaginator
     {
@@ -33,6 +33,7 @@ final readonly class UserAdminService
         $oldRoles = $this->users->changeRole($user, $role);
         Log::info('Updated user role', ['changed_by' => $admin->id, 'target_user' => $user->id, 'old_role' => $oldRoles, 'new_role' => $role->name]);
         $this->activities->record('role.changed', $user);
+
         return $role;
     }
 }

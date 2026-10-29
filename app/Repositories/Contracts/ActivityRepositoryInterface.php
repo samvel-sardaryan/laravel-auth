@@ -6,7 +6,7 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\LengthAwarePaginator;
 
-interface ActivityRepository
+interface ActivityRepositoryInterface
 {
     public function record(string $action, ?Model $subject = null, ?User $by = null): void;
 

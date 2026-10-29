@@ -5,13 +5,13 @@ namespace App\Services;
 use App\Models\Comment;
 use App\Models\Post;
 use App\Models\User;
-use App\Repositories\Contracts\ActivityRepository;
-use App\Repositories\Contracts\CommentRepository;
+use App\Repositories\Contracts\ActivityRepositoryInterface;
+use App\Repositories\Contracts\CommentRepositoryInterface;
 use Illuminate\Database\Eloquent\Collection;
 
 final readonly class CommentService
 {
-    public function __construct(private CommentRepository $comments, private ActivityRepository $activities) {}
+    public function __construct(private CommentRepositoryInterface $comments, private ActivityRepositoryInterface $activities) {}
 
     public function threadFor(Post $post): Collection
     {
@@ -23,6 +23,7 @@ final readonly class CommentService
         if ($parentId) {
             $parentId = $this->comments->topLevelIdOf($parentId);
         }
+
         return $this->comments->create($post, $author, $content, $parentId);
     }
 

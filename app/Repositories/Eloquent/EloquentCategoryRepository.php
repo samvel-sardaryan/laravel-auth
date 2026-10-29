@@ -3,12 +3,12 @@
 namespace App\Repositories\Eloquent;
 
 use App\Models\Category;
-use Illuminate\Database\Eloquent\Collection;
 use App\Models\Post;
+use App\Repositories\Contracts\CategoryRepositoryInterface;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
-use App\Repositories\Contracts\CategoryRepository;
 
-final readonly class EloquentCategoryRepository implements CategoryRepository
+final readonly class EloquentCategoryRepository implements CategoryRepositoryInterface
 {
     public function allWithPostCounts(): Collection
     {
