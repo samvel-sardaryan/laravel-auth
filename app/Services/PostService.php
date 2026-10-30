@@ -10,6 +10,7 @@ use App\Repositories\Contracts\PostRepositoryInterface;
 use App\Support\Pagination;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Throwable;
 
@@ -44,41 +45,73 @@ final readonly class PostService
 
     public function create(User $author, array $data, array $images): Post
     {
-        $paths = array_map(fn ($file) => $file->store('posts', 'public'), $images);
+        $paths = [];
+        $post = null;
+
         try {
+            foreach ($images as $image) {
+                $paths[] = $image->store('posts', 'public');
+            }
+
             $post = $this->posts->create($author, Arr::only($data, ['title', 'content', 'status', 'category_id']), $data['tags'] ?? null, $paths);
+            $this->activities->record('post.created', $post);
         } catch (Throwable $exception) {
-            Storage::disk('public')->delete($paths);
+            Log::error('Creating a post failed', ['user_id' => $author->id, 'error' => $exception->getMessage()]);
+
+            if ($post === null) {
+                Storage::disk('public')->delete($paths);
+            }
+
             throw $exception;
         }
-        $this->activities->record('post.created', $post);
 
         return $post;
     }
 
     public function update(Post $post, array $data, array $images, array $removeImageIds): Post
     {
-        $paths = array_map(fn ($file) => $file->store('posts', 'public'), $images);
+        $paths = [];
+        $oldPaths = null;
+
         try {
+            foreach ($images as $image) {
+                $paths[] = $image->store('posts', 'public');
+            }
+
             $oldPaths = $this->posts->update($post, Arr::only($data, ['title', 'content', 'status', 'category_id']), $data['tags'] ?? null, $paths, $removeImageIds);
+            Storage::disk('public')->delete($oldPaths);
+            $this->activities->record('post.updated', $post);
         } catch (Throwable $exception) {
-            Storage::disk('public')->delete($paths);
+            Log::error('Updating a post failed', ['post_id' => $post->id, 'error' => $exception->getMessage()]);
+
+            if ($oldPaths === null) {
+                Storage::disk('public')->delete($paths);
+            }
+
             throw $exception;
         }
-        Storage::disk('public')->delete($oldPaths);
-        $this->activities->record('post.updated', $post);
 
         return $post;
     }
 
     public function delete(Post $post): void
     {
-        $this->posts->delete($post);
-        $this->activities->record('post.deleted', $post);
+        try {
+            $this->posts->delete($post);
+            $this->activities->record('post.deleted', $post);
+        } catch (Throwable $exception) {
+            Log::error('Deleting a post failed', ['post_id' => $post->id, 'error' => $exception->getMessage()]);
+            throw $exception;
+        }
     }
 
     public function toggleLike(Post $post, User $user): bool
     {
-        return $this->posts->toggleLike($post, $user);
+        try {
+            return $this->posts->toggleLike($post, $user);
+        } catch (Throwable $exception) {
+            Log::error('Toggling like on a post failed', ['post_id' => $post->id, 'user_id' => $user->id, 'error' => $exception->getMessage()]);
+            throw $exception;
+        }
     }
 }

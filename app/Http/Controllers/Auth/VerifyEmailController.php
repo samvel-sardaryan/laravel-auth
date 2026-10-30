@@ -43,7 +43,7 @@ final readonly class VerifyEmailController extends Controller
             return redirect()->route('dashboard')->with('status', 'You are already verified');
         }
 
-        $request->user()->sendEmailVerificationNotification();
+        $this->registration->resendVerification($request->user());
 
         return back()->with('status', 'Verification link sent');
     }

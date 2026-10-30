@@ -5,6 +5,8 @@ namespace App\Services;
 use App\Models\Category;
 use App\Repositories\Contracts\CategoryRepositoryInterface;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Log;
+use Throwable;
 
 final readonly class CategoryService
 {
@@ -22,12 +24,22 @@ final readonly class CategoryService
 
     public function create(array $data): Category
     {
-        return $this->categories->create($data);
+        try {
+            return $this->categories->create($data);
+        } catch (Throwable $exception) {
+            Log::error('Creating category failed', ['name' => $data['name'] ?? null, 'error' => $exception->getMessage()]);
+            throw $exception;
+        }
     }
 
     public function update(Category $category, array $data): void
     {
-        $this->categories->update($category, $data);
+        try {
+            $this->categories->update($category, $data);
+        } catch (Throwable $exception) {
+            Log::error('Updating category failed', ['category_id' => $category->id, 'error' => $exception->getMessage()]);
+            throw $exception;
+        }
     }
 
     public function delete(Category $category): bool
@@ -36,7 +48,12 @@ final readonly class CategoryService
             return false;
         }
 
-        $this->categories->deleteMovingPostsToDefault($category);
+        try {
+            $this->categories->deleteMovingPostsToDefault($category);
+        } catch (Throwable $exception) {
+            Log::error('Deleting category failed', ['category_id' => $category->id, 'error' => $exception->getMessage()]);
+            throw $exception;
+        }
 
         return true;
     }

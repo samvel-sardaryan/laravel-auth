@@ -6,6 +6,8 @@ use App\Models\User;
 use App\Repositories\Contracts\UserRepositoryInterface;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Events\Verified;
+use Illuminate\Support\Facades\Log;
+use Throwable;
 
 final readonly class RegistrationService
 {
@@ -13,9 +15,13 @@ final readonly class RegistrationService
 
     public function register(array $data): User
     {
-        $user = $this->users->create($data);
-
-        event(new Registered($user));
+        try {
+            $user = $this->users->create($data);
+            event(new Registered($user));
+        } catch (Throwable $exception) {
+            Log::error('User registration failed', ['email' => $data['email'] ?? null, 'error' => $exception->getMessage()]);
+            throw $exception;
+        }
 
         return $user;
     }
@@ -27,7 +33,22 @@ final readonly class RegistrationService
 
     public function verifyEmail(User $user): void
     {
-        $this->users->markEmailAsVerified($user);
-        event(new Verified($user));
+        try {
+            $this->users->markEmailAsVerified($user);
+            event(new Verified($user));
+        } catch (Throwable $exception) {
+            Log::error('Email verification failed', ['user_id' => $user->id, 'error' => $exception->getMessage()]);
+            throw $exception;
+        }
+    }
+
+    public function resendVerification(User $user): void
+    {
+        try {
+            $user->sendEmailVerificationNotification();
+        } catch (Throwable $exception) {
+            Log::error('Resending email verification failed', ['user_id' => $user->id, 'error' => $exception->getMessage()]);
+            throw $exception;
+        }
     }
 }

@@ -8,6 +8,7 @@ use App\Repositories\Contracts\ProfileRepositoryInterface;
 use App\Repositories\Contracts\UserRepositoryInterface;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Throwable;
 
@@ -27,22 +28,26 @@ final readonly class ProfileService
 
     public function saveDetails(User $user, array $data, ?UploadedFile $avatar): void
     {
-        $newPath = $avatar?->store('avatars', 'public');
         $oldPath = $this->profiles->forUser($user)->avatar;
-        $details = Arr::except($data, 'avatar');
-
-        if ($newPath) {
-            $details['avatar'] = $newPath;
-        }
+        $newPath = null;
 
         try {
+            $newPath = $avatar?->store('avatars', 'public');
+            $details = Arr::except($data, 'avatar');
+
+            if ($newPath) {
+                $details['avatar'] = $newPath;
+            }
+
             $this->profiles->saveDetails($user, $details);
-        } catch (Throwable $e) {
+        } catch (Throwable $exception) {
+            Log::error('Saving profile details failed', ['user_id' => $user->id, 'error' => $exception->getMessage()]);
+
             if ($newPath) {
                 Storage::disk('public')->delete($newPath);
             }
 
-            throw $e;
+            throw $exception;
         }
 
         if ($newPath && $oldPath) {
@@ -58,8 +63,13 @@ final readonly class ProfileService
             return false;
         }
 
-        Storage::disk('public')->delete($profile->avatar);
-        $this->profiles->clearAvatar($profile);
+        try {
+            Storage::disk('public')->delete($profile->avatar);
+            $this->profiles->clearAvatar($profile);
+        } catch (Throwable $exception) {
+            Log::error('Removing avatar failed', ['user_id' => $user->id, 'error' => $exception->getMessage()]);
+            throw $exception;
+        }
 
         return true;
     }
